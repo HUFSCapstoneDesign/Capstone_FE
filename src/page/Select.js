@@ -2,7 +2,7 @@ import { useState } from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import Info from "./Info";
+import Info from "../components/SelectComponents/Info";
 import "../styles/Select.css";
 
 //더미mainimage
@@ -43,7 +43,7 @@ function Search(props) {
     let temp = props.data[i];
     lis.push(
       <input
-        class="category"
+        className="category"
         type="button"
         value={temp.category}
         key={temp.id}
@@ -53,7 +53,7 @@ function Search(props) {
   }
   return (
     <div>
-      <div class="search">
+      <div className="search">
         <input
           type="text"
           placeholder="템플릿 이름 입력"
@@ -75,16 +75,16 @@ function TempleteList(props) {
     let temp = props.data[i];
     lis.push(
       <li
-        class="templete"
+        className="templete"
         onClick={() => {
           getId(temp.id);
           setInfoOpen(!InfoOpen);
         }}
       >
-        <img class="mainImage" src={temp.mainimage} alt=""></img>
-        <div class="templeteInfo">
-          <span class="templeteCate">{temp.category}</span>
-          <span class="templeteTitle">{temp.title}</span>
+        <img className="mainImage" src={temp.mainimage} alt=""></img>
+        <div className="templeteInfo">
+          <span className="templeteCate">{temp.category}</span>
+          <span className="templeteTitle">{temp.title}</span>
         </div>
       </li>
     );
@@ -97,8 +97,9 @@ function TempleteList(props) {
 
   //탬플릿 클릭하면 Info(팝업창) 생성
   return (
+    
     <section>
-      <ol class="templete_area">{lis}</ol>
+      <ol className="templete_area">{lis}</ol>
       {InfoOpen && (
         <Info id={selectid} closeInfo={() => setInfoOpen(!InfoOpen)}></Info>
       )}
@@ -120,7 +121,7 @@ function Select() {
   //템플릿의 id, title, category, mainimage 필요
 
   return (
-    <div class="templeteContainer">
+    <div className="templeteContainer">
       <Search data={data}></Search>
     </div>
   );

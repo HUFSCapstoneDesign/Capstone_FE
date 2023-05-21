@@ -1,8 +1,9 @@
 import React from "react";
-import "../styles/Info.css";
+import { Link, Outlet } from "react-router-dom";
+import "../../styles/Info.css";
 
 //더미 fullimage
-import fullimage from "../images/testing.png";
+import fullimage from "../../images/testing.png";
 
 function TempleteTag(props) {
   const lis = [];
@@ -45,7 +46,10 @@ function Info(props) {
           <div class="description">
             <div class="templeteName">{title}</div>
             <TempleteTag sample={taglist}></TempleteTag>
-            <button id="startEditBtn">편집하기</button>
+            <Link to="/edit">
+              <button id="startEditBtn">편집하기</button>
+            </Link>
+            <Outlet/>
           </div>
         </div>
       </div>
