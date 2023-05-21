@@ -1,10 +1,12 @@
-import {React, useEffect} from "react";
+import {React, useEffect, useState} from "react";
 import {Rnd} from "react-rnd";
 
 
 
 
 export default function TextView({Tdata, SetTData, Idata, SetIData, ClickedID, SetClickedID, ClickedType, SetClickedType, SetBackColorBol, zoomRatio, changeFlag, setChangeFlag, newChangeID, setNewChangeID, temHeight, temWidth}) {
+
+    const [isMoving, setIsMoving] = useState(false);
 
     useEffect(() => {
         const textSize = [];
@@ -53,15 +55,8 @@ export default function TextView({Tdata, SetTData, Idata, SetIData, ClickedID, S
         e.stopPropagation() 
 
         if (ClickedType === "Text" && newChangeID !== ClickedID) {
-            const data = Tdata.find((el)=> el.id === ClickedID);
-            if(data && ((data.content === "")||(data.textopa === 0) || (data.textcolor === "255255255" && data.textcolor === "255255255"))) {
-                SetTData(Tdata.filter((el) => el.id !== ClickedID));
-                SetClickedID(e.target.id);
-                SetClickedType(e.target.className);
-
-            }
-            
-            else if(data && data.size === "") {
+            const data = Tdata.find((el)=> el.id === ClickedID)
+            if(data && data.size === "") {
                 SetTData(Tdata.map((el) => el.id === ClickedID  ? {...el, size: 15} : el));
                 SetClickedID(e.target.id);
                 SetClickedType(e.target.className);
@@ -72,10 +67,21 @@ export default function TextView({Tdata, SetTData, Idata, SetIData, ClickedID, S
             const data = Idata.find((el) => el.id === ClickedID);
             (data && (data.opacity === 0)) && SetIData(Idata.filter((el) => el.id !== ClickedID));
         }
-
+        console.log(isMoving);
         SetClickedID(e.target.id);
         SetClickedType(e.target.className);
         SetBackColorBol(Tdata.find((el) => el.id === e.target.id).backopa !== 0);
+        const CurrentData = Tdata.find((el) => el.id === e.target.id)
+        if(CurrentData && CurrentData.flag && !isMoving) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            context.font = `${CurrentData.size + 3}px ${CurrentData.font}`;
+            const width = context.measureText("글씨를 입력해주세요").width
+            const height = (CurrentData.size + 12)
+            console.log(e.type);
+            SetTData(Tdata.map((el) => el.id === e.target.id ? {...el, content: "", flag: false, width: width, height: height} : el))
+        }
+        setIsMoving(false);
     }
 
     return(
@@ -89,8 +95,11 @@ export default function TextView({Tdata, SetTData, Idata, SetIData, ClickedID, S
                 style={{position: "absolute", zIndex: el.zindex, transform: `scale(${zoomRatio})`, transformOrigin: 'top left'}}
                 bounds="parent"
                 size = {{width: parseInt(el.width*zoomRatio), height: parseInt(el.height*zoomRatio)}}
+                onDrag = {()=> setIsMoving(true)}
                 onDragStop={(e,d) => {
-                    SetTData(Tdata.map((ell) => (ell.id === el.id ? {...ell, x: parseInt(d.x / zoomRatio), y: parseInt(d.y/zoomRatio)} : ell)));}}
+                    SetTData(Tdata.map((ell) => (ell.id === el.id ? {...ell, x: parseInt(d.x / zoomRatio), y: parseInt(d.y/zoomRatio)} : ell)));
+                    e.stopPropagation();
+                }}
                 
                 enableResizing={{
                     bottom: false,

@@ -1,4 +1,4 @@
-import {React, useState, useRef} from "react";
+import {React, useState, useRef, useEffect} from "react";
 import { MainPage, FlexMain, InputMain, DisplayMain, Template} from "../styles/emotion";
 import TextOpt from "../components/EditPageComponents/TextComponent/TextOpt";
 import TextView from "../components/EditPageComponents/TextComponent/TextView";
@@ -16,8 +16,6 @@ import Slider from '@mui/material/Slider';
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 
 export default function EditPage() {
-
-    //rotation button size = [50,50]
     const [zoomRatio, setZoomRatio] = useState(1);
     const [zoomView, setZoomView] = useState(false);
     const [ClickedID, SetClickedID] = useState("");
@@ -30,6 +28,12 @@ export default function EditPage() {
     const [flag, SetFlag] = useState(false);
     const [changeFlag, setChangeFlag]  = useState(true);
     const [newChangeID, setNewChangeID] = useState(null);
+    const widthRef = useRef(null);
+    const lWidth = useRef(null);
+
+    useEffect(() => {
+        lWidth.current = widthRef.current.offsetWidth
+    },)
 
     const darkTheme = createTheme({
         palette: {
@@ -40,12 +44,13 @@ export default function EditPage() {
         },
     });
 
+
       const temWidth = 700;
       const temHeight = 3000;
       const [Tdata, SetTData] = useState([
-        {id: "1", x: 50, y:150, content: "text1\ntext1text1", size: 20, font: "'Nanum Pen Script', cursive", bold: true, italic: false, underlined: false, align: "left", textcolor: "161250079", textopa: 0.3, backcolor: "255253085", backopa: 0.7, zindex: 4},
-        {id: "2", x: 150, y:50, content: "text2\ntestestest\ntestest", size: 20, font: "'Single Day', cursive", bold: false, italic: false, underlined: true, align: "center", textcolor: "093110250", textopa: 0.6, backcolor:"000035245", backopa: 0.5, zindex: 5},
-        {id: "3", x: 300, y:400, content: "text3", size: 15, font: "'Hi Melody', cursive", bold: true, italic: true, underlined:false, align: "right", textcolor: "116027124", textopa: 1, backcolor:"234054128", backopa:1, zindex: 6}
+        {id: "1", x: 50, y:150, content: "text1\ntext1text1", size: 20, font: "'Nanum Pen Script', cursive", bold: true, italic: false, underlined: false, align: "left", textcolor: "161250079", textopa: 0.3, backcolor: "255253085", backopa: 0.7, zindex: 4, flag: true},
+        {id: "2", x: 150, y:50, content: "text2\ntestestest\ntestest", size: 20, font: "'Single Day', cursive", bold: false, italic: false, underlined: true, align: "center", textcolor: "093110250", textopa: 0.6, backcolor:"000035245", backopa: 0.5, zindex: 5, flag: true},
+        {id: "3", x: 300, y:400, content: "text3", size: 15, font: "'Hi Melody', cursive", bold: true, italic: true, underlined:false, align: "right", textcolor: "116027124", textopa: 1, backcolor:"234054128", backopa:1, zindex: 6, flag: true}
       ])
     
       const [Idata, SetIData] = useState([
@@ -138,11 +143,8 @@ export default function EditPage() {
 
         if (ClickedType === "Text" && newChangeID !== ClickedID) {
             const data = Tdata.find((el) => el.id === ClickedID);
-            if(data && ((data.content === "")||(data.textopa === 0) || (data.textcolor === "255255255" && data.textcolor === "255255255"))) {
-                SetTData(Tdata.filter((el) => el.id !== ClickedID));
-            }
-            
-            else if(data && data.size === "") {
+        
+            if(data && data.size === "") {
                 SetTData(Tdata.map((el) => el.id === ClickedID  ? {...el, size: 15} : el));
             }
         }
@@ -188,8 +190,8 @@ export default function EditPage() {
                      <div></div>))}  
                 </InputMain>
 
-                <DisplayMain id = "un1" onClick={ChangeCID} className="Board">
-                    <Template id = "un2" className="Board" style = {{cursor: (flag && img) ? "crosshair" : "default"}} zoomRatio = {zoomRatio} width = {window.visualViewport.width} temHeight = {temHeight} temWidth = {temWidth}>
+                <DisplayMain id = "un1" onClick={ChangeCID} className="Board" ref={widthRef}>
+                    <Template id = "un2" className="Board" style = {{cursor: (flag && img) ? "crosshair" : "default"}} zoomRatio = {zoomRatio} width = {window.visualViewport.width} temHeight = {temHeight} temWidth = {temWidth} lWidth = {lWidth}>
                         <TextView Tdata = {Tdata} SetTData={SetTData} Idata = {Idata} SetIData = {SetIData} ClickedID = {ClickedID} SetClickedID = {SetClickedID} ClickedType = {ClickedType} SetClickedType = {SetClickedType} SetBackColorBol = {SetBackColorBol} zoomRatio = {zoomRatio} changeFlag = {changeFlag} setChangeFlag = {setChangeFlag} newChangeID = {newChangeID} setNewChangeID = {setNewChangeID} temHeight = {temHeight} temWidth = {temWidth}></TextView>
                         <ImageView Idata = {Idata} SetIData = {SetIData} ClickedID = {ClickedID} SetClickedID = {SetClickedID} ClickedType = {ClickedType} SetClickedType = {SetClickedType} Tdata = {Tdata} SetTData = {SetTData} inputRef = {inputRef} handleImageUpload = {handleImageUpload} flag = {flag} SetFlag = {SetFlag} TID = {TID} IID = {IID} img = {img} setImg = {setImg} zoomRatio = {zoomRatio}></ImageView>
                     </Template>                  

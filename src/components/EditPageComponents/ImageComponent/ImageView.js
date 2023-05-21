@@ -10,12 +10,8 @@ export default function ImageView({Idata, SetIData, ClickedID, SetClickedID, Cli
     const ChangeCID = (e) => {
 
         if (ClickedType === "Text") {
-            const data = Tdata.find((el) => el.id === ClickedID);
-            if(data && ((data.content === "")||(data.textopa === 0) || (data.textcolor === "255255255" && data.textcolor === "255255255"))) {
-                SetTData(Tdata.filter((el) => el.id !== ClickedID));
-            }
-            
-            else if(data && data.size === "") {
+            const data = Tdata.find((el) => el.id === ClickedID);          
+            if(data && data.size === "") {
                 SetTData(Tdata.map((el) => el.id === ClickedID  ? {...el, size: 15} : el));
             }
         }
