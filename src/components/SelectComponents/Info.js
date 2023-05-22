@@ -46,7 +46,7 @@ function Info(props) {
           <div class="description">
             <div class="templeteName">{title}</div>
             <TempleteTag sample={taglist}></TempleteTag>
-            <Link to="/edit">
+            <Link to="/edit"/*+[templete id] */>
               <button id="startEditBtn">편집하기</button>
             </Link>
             <Outlet/>

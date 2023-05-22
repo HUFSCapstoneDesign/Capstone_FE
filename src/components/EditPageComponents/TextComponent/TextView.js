@@ -19,9 +19,9 @@ export default function TextView({Tdata, SetTData, Idata, SetIData, ClickedID, S
             const height = (text.length) * (el.size + 12)
             textSize.push([width, height]);
         })
-        SetTData(Tdata.map((el, index) => el ? {...el, width: textSize[index][0], height: textSize[index][1]} : el))
+        SetTData(Tdata.map((el, index) => el ? {...el, width: textSize[index][0], height: textSize[index][1], flag: true} : el))
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [zoomRatio])
+    }, [])
     
     useEffect(() => {
         if(ClickedID && ClickedType === "Text") {
@@ -67,7 +67,7 @@ export default function TextView({Tdata, SetTData, Idata, SetIData, ClickedID, S
             const data = Idata.find((el) => el.id === ClickedID);
             (data && (data.opacity === 0)) && SetIData(Idata.filter((el) => el.id !== ClickedID));
         }
-        console.log(isMoving);
+
         SetClickedID(e.target.id);
         SetClickedType(e.target.className);
         SetBackColorBol(Tdata.find((el) => el.id === e.target.id).backopa !== 0);
@@ -78,7 +78,6 @@ export default function TextView({Tdata, SetTData, Idata, SetIData, ClickedID, S
             context.font = `${CurrentData.size + 3}px ${CurrentData.font}`;
             const width = context.measureText("글씨를 입력해주세요").width
             const height = (CurrentData.size + 12)
-            console.log(e.type);
             SetTData(Tdata.map((el) => el.id === e.target.id ? {...el, content: "", flag: false, width: width, height: height} : el))
         }
         setIsMoving(false);
@@ -86,7 +85,7 @@ export default function TextView({Tdata, SetTData, Idata, SetIData, ClickedID, S
 
     return(
         <>
-            {Tdata.map((el, index) => 
+            {Tdata.map((el) => 
             
             <Rnd
                 className="Text"
