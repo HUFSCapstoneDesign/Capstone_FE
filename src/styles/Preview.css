@@ -1,0 +1,91 @@
+
+.header {
+    display: block;
+    background-color: darkgray;
+    height: 5vh;
+}
+
+.preview {
+    display: flex;
+    height: 95vh;
+}
+
+.addinfo {
+    background-color: white;
+    width: 40%;
+    max-width: 40%;
+    padding: 15px;
+}
+
+.result {
+    background-color: gainsboro;
+    width: 100%;
+}
+
+.name {
+    display: block;
+    font-weight: 700;
+    margin: 20px 5px 5px 5px;
+}
+
+.title {
+    width: 90%;
+    margin: 5px;
+    min-height: 50px;
+    font-size:xx-large ;
+    font-weight: 700;
+    border: none;
+    border-bottom: solid 3px #234FAD;
+    resize: none;
+    outline: none;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+
+.category {
+    width: 90%;
+    margin: 5px;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: medium;
+}
+
+
+.InsertTag {
+    display: block;
+    width: 85%;
+    background-color: transparent;
+    border: 1px solid grey;
+    border-radius: 5px;
+    margin: 5px;
+    padding: 10px;
+}
+
+
+.TagBox {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.TagItem {
+    display: flex;
+    border: 2px solid #234FAD;
+    border-radius: 100px;
+    color: #234FAD;
+    padding: 3px 10px;
+    margin: 7px;
+    font-size: medium;
+    text-align: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.DeleteTag {
+    border: 0px;
+    color: #234FAD;
+    background-color: transparent;
+}
+
+.DeleteTag:hover {
+    cursor: pointer;
+}
+
