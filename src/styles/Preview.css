@@ -11,8 +11,10 @@
 }
 
 .addinfo {
+    position:relative;
     background-color: white;
-    width: 40%;
+    width: 370px;
+    height: 100%;
     max-width: 40%;
     padding: 15px;
 }
@@ -20,6 +22,8 @@
 .result {
     background-color: gainsboro;
     width: 100%;
+    height: 100%;
+    position:absolute;
 }
 
 .name {

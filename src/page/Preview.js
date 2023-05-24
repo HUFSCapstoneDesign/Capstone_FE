@@ -1,5 +1,11 @@
-import React, { Fragment, useState, useRef } from "react";
+import {React, useState, useRef, useEffect } from "react";
 import "../styles/Preview.css";
+import { Link, useLocation } from "react-router-dom";
+import { MainPage } from "../styles/emotion";
+import { createTheme, ThemeProvider, AppBar, Toolbar, Button } from "@mui/material";
+import { DisplayMain } from "../styles/emotion";
+import { Template } from "../styles/emotion";
+import html2canvas from "html2canvas"
 
 function Header() {
   return <div className="header"></div>;
@@ -24,6 +30,19 @@ function AddInfo(props) {
     props.setCategory(e.target.value);
   };
 
+  const ImageSave = () => {
+    console.log(document.getElementById("view"));
+    html2canvas(document.getElementById("view")).then((canvas) => {
+      const link = document.createElement("a");
+      link.download = "image";
+      link.href = canvas.toDataURL('image/png');
+      //setImage(link.href.replace('/^data:image\/\w+;base,/',''));
+      
+      document.body.appendChild(link);
+      link.click();
+    });
+  }
+
   return (
     <div className="addinfo">
       <textarea
@@ -37,12 +56,13 @@ function AddInfo(props) {
       ></textarea>
       <span className="name">| 카테고리</span>
       <select className="category" onChange={categoryChange}>
-        {props.sample.map((item) => (
-          <option value={item.id}>{item.name}</option>
+        {props.sample.map((item, idx) => (
+          <option value={item.id} key={idx}>{item.name}</option>
         ))}
       </select>
       <span className="name">| 태그</span>
       <AddTag setTag={props.setTag}></AddTag>
+      <Button variant="contained" style = {{position: "absolute", left: "180px", top: "600px"}} onClick={ImageSave}>이미지</Button>
     </div>
   );
 }
@@ -98,23 +118,94 @@ function AddTag(props) {
   );
 }
 
-function Result() {
-  return <div className="result"></div>;
+function Result({Idata, Tdata}) {
+  const rgba = (rgb, opa) => {
+    return "rgba(" + String(rgb.substr(0,3)) + "," + String(rgb.substr(3,3)) + "," + String(rgb.substr(6,3)) + "," + String(opa) + ")" 
+  }
+  return (
+    <>
+        {Tdata.map((el) => el.content && <pre
+          key={el.id}
+          style={{
+            position: "absolute",
+            marginLeft: `${el.x}px`,
+            marginTop: `${el.y}px`,
+            zIndex: el.zindex,
+            background: rgba(el.backcolor, el.backopa),
+            fontFamily: `${el.font}`,
+            fontSize: `${el.size}px`, 
+            fontWeight: (el.bold) ? "bold" : "normal", 
+            fontStyle: (el.italic) ? "italic" : "normal", 
+            textDecorationLine: (el.underlined) ? "underline" : "none", 
+            textAlign: `${el.align}`, 
+            color: rgba(el.textcolor, el.textopa),
+            zIndex: (el.zindex),
+            resize: "none",
+            outline: "none",
+            whiteSpace: "pre",
+            width: `${el.width}px`,
+            height: `${el.height}px`,
+          }}>{el.content}</pre>)}
+        {Idata.map((el) => <img
+          key={el.id}
+          src = {el.src}
+          style={{
+            position: "absolute",
+            left: el.x,
+            top: el.y,
+            width: el.width,
+            height: el.height,
+            borderStyle: el.borderstyle,
+            borderWidth: `${el.bordersize}px`,
+            borderColor: el.bordercolor,
+            borderRadius: el.radius,
+            zIndex: el.zindex,
+            opacity: el.opacity,
+            filter: `blur(${el.blur}px) brightness(${el.brightness}%) contrast(${el.contrast}%) grayscale(${el.grayscale}%) hue-rotate(${el.hue}deg) invert(${el.invert}%) saturate(${el.saturate}%) sepia(${el.sepia}%)`
+          }} 
+        ></img>)}
+    </>
+  )
 }
 
 function Preview(props) {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [tag, setTag] = useState();
+  const widthRef = useRef(null);
+  const [lWidth, setlWidth] = useState(0);
+  const [left, setLeft] = useState(0);
+
+  useEffect(() => {
+    setlWidth(widthRef.current.offsetWidth);
+},)  
 
   const sampleCategory = [
     { id: 1, name: "test1" },
     { id: 2, name: "test2" },
   ];
+  const location = useLocation();
+
+  const darkTheme = createTheme({
+    palette: {
+      mode: 'dark',
+      primary: {
+        main: '#1976d2',
+      },
+    },
+});
 
   return (
-    <Fragment>
-      <Header> </Header>
+    <MainPage>
+      <ThemeProvider theme={darkTheme}>
+        <AppBar position="static" style={{backgroundColor: "#1F1F1F"}}>
+          <Toolbar variant="dense" style={{marginLeft:"-10px"}}>
+            <Link to="/edit" state = {{Tdata: location.state.Tdata, Idata: location.state.Idata, temHeight: location.state.temHeight, temWidth: location.state.temWidth, flag: false}}>           
+              <Button sx={{color: "white"}}>편집하기</Button>
+            </Link>
+          </Toolbar>
+        </AppBar>
+      </ThemeProvider>
       <div className="preview">
         <AddInfo
           sample={sampleCategory}
@@ -122,9 +213,13 @@ function Preview(props) {
           setCategory={setCategory}
           setTag={setTag}
         ></AddInfo>
-        <Result></Result>
+        <DisplayMain ref = {widthRef} id = "display">
+          <Template id = "view" temWidth = {location.state.temWidth} temHeight = {location.state.temHeight} lWidth = {lWidth} zoomRatio = {1}>
+            <Result Tdata={location.state.Tdata} Idata = {location.state.Idata}></Result>
+          </Template>
+        </DisplayMain>
       </div>
-    </Fragment>
+    </MainPage>
   );
 }
 

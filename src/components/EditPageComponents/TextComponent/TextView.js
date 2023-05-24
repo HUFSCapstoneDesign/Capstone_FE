@@ -4,7 +4,7 @@ import {Rnd} from "react-rnd";
 
 
 
-export default function TextView({Tdata, SetTData, Idata, SetIData, ClickedID, SetClickedID, ClickedType, SetClickedType, SetBackColorBol, zoomRatio, changeFlag, setChangeFlag, newChangeID, setNewChangeID, temHeight, temWidth}) {
+export default function TextView({Tdata, SetTData, Idata, SetIData, ClickedID, SetClickedID, ClickedType, SetClickedType, SetBackColorBol, zoomRatio, changeFlag, setChangeFlag, newChangeID, setNewChangeID, temHeight, temWidth, flag}) {
 
     const [isMoving, setIsMoving] = useState(false);
 
@@ -16,10 +16,11 @@ export default function TextView({Tdata, SetTData, Idata, SetIData, ClickedID, S
             context.font = `${el.size + 3}px ${el.font}`;
             const text = el.content.split("\n");
             const width = (Math.max(...text.map((ell) => context.measureText(ell).width)))
-            const height = (text.length) * (el.size + 12)
+            const height = (text.length) * (el.size * 1.3)
             textSize.push([width, height]);
         })
-        SetTData(Tdata.map((el, index) => el ? {...el, width: textSize[index][0], height: textSize[index][1], flag: true} : el))
+        flag ? SetTData(Tdata.map((el, index) => el ? {...el, width: textSize[index][0], height: textSize[index][1], flag: true} : el))
+        : SetTData(Tdata.map((el, index) => el ? {...el, width: textSize[index][0], height: textSize[index][1]} : el))
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
     

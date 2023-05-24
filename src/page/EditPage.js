@@ -1,5 +1,6 @@
 import {React, useState, useRef, useEffect} from "react";
 import { MainPage, FlexMain, InputMain, DisplayMain, Template} from "../styles/emotion";
+import { Link, useLocation } from "react-router-dom";
 import TextOpt from "../components/EditPageComponents/TextComponent/TextOpt";
 import TextView from "../components/EditPageComponents/TextComponent/TextView";
 import ImageOpt from "../components/EditPageComponents/ImageComponent/ImageOpt";
@@ -15,6 +16,7 @@ import Toolbar from '@mui/material/Toolbar';
 import Slider from '@mui/material/Slider';
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 
+
 export default function EditPage() {
     const [zoomRatio, setZoomRatio] = useState(1);
     const [zoomView, setZoomView] = useState(false);
@@ -29,10 +31,17 @@ export default function EditPage() {
     const [changeFlag, setChangeFlag]  = useState(true);
     const [newChangeID, setNewChangeID] = useState(null);
     const widthRef = useRef(null);
-    const lWidth = useRef(null);
+    const [lWidth,setlWidth] = useState(0);
+    const temRef = useRef(null);
+    const [scrollH, setScrollH] = useState(0);
+    const location = useLocation();
+
+    const updateScroll = (e) => {
+        setScrollH(e.target.scrollTop)
+    }
 
     useEffect(() => {
-        lWidth.current = widthRef.current.offsetWidth
+        setlWidth(widthRef.current.offsetWidth);
     },)   
 
     const darkTheme = createTheme({
@@ -44,20 +53,11 @@ export default function EditPage() {
         },
     });
 
-
-    const temWidth = 700;
-    const temHeight = 3000;
-    const [Tdata, SetTData] = useState([
-        {id: "1", x: 50, y:150, content: "text1\ntext1text1", size: 20, font: "'Nanum Pen Script', cursive", bold: true, italic: false, underlined: false, align: "left", textcolor: "161250079", textopa: 0.3, backcolor: "255253085", backopa: 0.7, zindex: 4, },
-        {id: "2", x: 150, y:50, content: "text2\ntestestest\ntestest", size: 20, font: "'Single Day', cursive", bold: false, italic: false, underlined: true, align: "center", textcolor: "093110250", textopa: 0.6, backcolor:"000035245", backopa: 0.5, zindex: 5,},
-        {id: "3", x: 300, y:400, content: "text3", size: 15, font: "'Hi Melody', cursive", bold: true, italic: true, underlined:false, align: "right", textcolor: "116027124", textopa: 1, backcolor:"234054128", backopa:1, zindex: 6, }
-    ])
+    const temWidth = location.state.temWidth;
+    const temHeight = location.state.temHeight;
+    const [Tdata, SetTData] = useState(location.state.Tdata);
     
-    const [Idata, SetIData] = useState([
-        {id: "1", x: 200, y: 150, src: "Test1.jpg", width: 200, height: 200, zindex: 1, borderstyle: "none", bordersize: 0, bordercolor: "#000000", opacity: 1, radius: 10, blur: 0, brightness : 100, contrast: 100, grayscale: 0, hue: 0, invert:0, saturate: 100, sepia: 0},
-        {id: "2", x: 50, y: 300, src: "Test2.jpg", width: 150, height: 250, zindex: 2, borderstyle: "dotted", bordersize: 1, bordercolor: "#000000", opacity: 0.7, radius: 0, blur: 0, brightness : 100, contrast: 100, grayscale: 0, hue: 0, invert:0, saturate: 100, sepia: 0},
-        {id: "3", x: 400, y: 400, src: "Test3.jpg", width: 250, height: 150, zindex: 3, borderstyle:"dashed", bordersize: 0.5, bordercolor: "#00ff00", opacity: 0.5, radius: 30, blur: 0 , brightness : 100, contrast: 100, grayscale: 0, hue: 0, invert:0, saturate: 100, sepia: 0}
-    ])
+    const [Idata, SetIData] = useState(location.state.Idata);
     
     const TID = useRef(Tdata.length);
     const IID = useRef(Idata.length);
@@ -84,8 +84,7 @@ export default function EditPage() {
         context.font = `23px 'Nanum Pen Script', cursive`;
         const width = context.measureText("글자를 입력해주세요").width
         const height =  32;
-        console.log(document.getElementById("un2").offsetHeight);
-        SetTData([{id: String(TID.current), x: 0, y: 0, content: "", size: 20, font: "'Nanum Pen Script', cursive", bold: false, italic: false, underlined: false, align: "left", textcolor: "000000000", textopa: 1, backcolor: "255255255", backopa: 0, zindex: IID.current + TID.current, rotation: 0, width: width, height: height}, ...Tdata]);
+        SetTData([{id: String(TID.current), x: (temWidth - width)/2, y: scrollH + (widthRef.current.offsetHeight - height)/2, content: "", size: 20, font: "'Nanum Pen Script', cursive", bold: false, italic: false, underlined: false, align: "left", textcolor: "000000000", textopa: 1, backcolor: "255255255", backopa: 0, zindex: IID.current + TID.current, rotation: 0, width: width, height: height, flag: false}, ...Tdata]);
         SetClickedID(String(TID.current));    
         SetClickedType("Text");
         setNewChangeID(String(TID.current));
@@ -174,7 +173,9 @@ export default function EditPage() {
                             </IconButton>
                             {zoomView && <Slider onChange={handleZoom} min={50} max={300} sx={{width: "150px", color:"white"}} value={zoomRatio*100}></Slider>}
                             <Box sx={{ flexGrow: 1 }} />
-                            <Button sx={{color: "white"}}>미리보기</Button>
+                            <Link to="/preview" state = {{Tdata: Tdata, Idata: Idata, temHeight: temHeight, temWidth: temWidth}}>           
+                                <Button sx={{color: "white"}}>미리보기</Button>
+                            </Link>
                         </Toolbar>
                     </AppBar>
                 </ThemeProvider>
@@ -188,9 +189,9 @@ export default function EditPage() {
                      <div></div>))}  
                 </InputMain>
 
-                <DisplayMain id = "un1" onClick={ChangeCID} className="Board" ref={widthRef}>
-                    <Template id = "un2" className="Board" style = {{cursor: (flag && img) ? "crosshair" : "default"}} zoomRatio = {zoomRatio} width = {window.visualViewport.width} temHeight = {temHeight} temWidth = {temWidth} lWidth = {lWidth}>
-                        <TextView Tdata = {Tdata} SetTData={SetTData} Idata = {Idata} SetIData = {SetIData} ClickedID = {ClickedID} SetClickedID = {SetClickedID} ClickedType = {ClickedType} SetClickedType = {SetClickedType} SetBackColorBol = {SetBackColorBol} zoomRatio = {zoomRatio} changeFlag = {changeFlag} setChangeFlag = {setChangeFlag} newChangeID = {newChangeID} setNewChangeID = {setNewChangeID} temHeight = {temHeight} temWidth = {temWidth}></TextView>
+                <DisplayMain id = "un1" onClick={ChangeCID} className="Board" ref={widthRef} onScroll={updateScroll}>
+                    <Template id = "un2" className="Board" ref = {temRef} style = {{cursor: (flag && img) ? "crosshair" : "default"}} zoomRatio = {zoomRatio} temHeight = {temHeight} temWidth = {temWidth} lWidth = {lWidth} >
+                        <TextView Tdata = {Tdata} SetTData={SetTData} Idata = {Idata} SetIData = {SetIData} ClickedID = {ClickedID} SetClickedID = {SetClickedID} ClickedType = {ClickedType} SetClickedType = {SetClickedType} SetBackColorBol = {SetBackColorBol} zoomRatio = {zoomRatio} changeFlag = {changeFlag} setChangeFlag = {setChangeFlag} newChangeID = {newChangeID} setNewChangeID = {setNewChangeID} temHeight = {temHeight} temWidth = {temWidth} flag = {location.state.flag}></TextView>
                         <ImageView Idata = {Idata} SetIData = {SetIData} ClickedID = {ClickedID} SetClickedID = {SetClickedID} ClickedType = {ClickedType} SetClickedType = {SetClickedType} Tdata = {Tdata} SetTData = {SetTData} inputRef = {inputRef} handleImageUpload = {handleImageUpload} flag = {flag} SetFlag = {SetFlag} TID = {TID} IID = {IID} img = {img} setImg = {setImg} zoomRatio = {zoomRatio}></ImageView>
                     </Template>                  
                 </DisplayMain>

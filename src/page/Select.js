@@ -75,6 +75,7 @@ function TempleteList(props) {
     let temp = props.data[i];
     lis.push(
       <li
+        key={i}
         className="templete"
         onClick={() => {
           getId(temp.id);

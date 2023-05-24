@@ -44,7 +44,7 @@ export const Template = styled.div`
     position: absolute;
     width: ${(props) => props.zoomRatio * props.temWidth}px;
     height: ${(props) => props.zoomRatio * props.temHeight}px;
-    margin-left: ${(props) => props.lWidth.current > props.zoomRatio * props.temWidth ? (props.lWidth.current - props.zoomRatio * props.temWidth)/2 : 0}px;
+    left: ${(props) => props.lWidth > props.zoomRatio * props.temWidth ? (props.lWidth - props.zoomRatio * props.temWidth)/2 : 0}px;
     margin-right: 200px;
     border: 1px solid #ddd;
     background-color: white;
