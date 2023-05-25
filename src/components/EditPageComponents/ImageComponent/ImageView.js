@@ -1,7 +1,7 @@
 import {React, useEffect, useState} from "react";
 import {Rnd} from "react-rnd";
 
-export default function ImageView({Idata, SetIData, ClickedID, SetClickedID, ClickedType, SetClickedType, Tdata, SetTData, inputRef, handleImageUpload, flag, SetFlag, TID, IID, img, setImg, zoomRatio}) {
+export default function ImageView({Idata, SetIData, ClickedID, SetClickedID, ClickedType, SetClickedType, Tdata, SetTData, inputRef, handleImageUpload, flag, SetFlag, TID, IID, img, setImg, zoomRatio, updatedFile, setUpdatedFile, updatedID, setUpdatedID}) {
     
     const [isDragging, setIsDragging] = useState(false);
     const [startPos, setStartPos] = useState({ x: 0, y: 0 });
@@ -58,6 +58,10 @@ export default function ImageView({Idata, SetIData, ClickedID, SetClickedID, Cli
             if(!flag) {
                 IID.current = IID.current + 1;
                 SetIData([{id: `${IID.current}`, x: parseInt(startPos.x / zoomRatio), y: parseInt(startPos.y / zoomRatio), width: parseInt((endPos.x - startPos.x) / zoomRatio), height: parseInt((endPos.y - startPos.y) / zoomRatio), src: img, zindex: IID.current + TID.current, borderstyle:"none", bordersize: 0.5, bordercolor: "#000000", radius: 0, opacity: 1, blur: 0 , brightness : 100, contrast: 100, grayscale: 0, hue: 0, invert:0, saturate: 100, sepia: 0}, ...Idata]);
+                const IDdata = updatedID;
+                IDdata[`${IID.current}`] = updatedFile;
+                setUpdatedFile(null);
+                setUpdatedID(IDdata);
                 SetClickedID(`${IID.current}`);
                 SetClickedType("Image")
                 setImg(null);
@@ -82,7 +86,7 @@ export default function ImageView({Idata, SetIData, ClickedID, SetClickedID, Cli
                         alignItems: "center",
                         justifyContent: "center",
                         border: (el.id === ClickedID && ClickedType === "Image") ? `dashed ${zoomRatio}px black`:"0",
-                        zIndex: (el.zindex)
+                        zIndex: (el.zindex),
                     }}
                     bounds="parent"
                     size = {{width: el.width * zoomRatio, height: el.height * zoomRatio}}

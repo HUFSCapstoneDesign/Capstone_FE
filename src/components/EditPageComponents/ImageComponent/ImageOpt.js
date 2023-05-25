@@ -1,4 +1,4 @@
-import {React, useState} from "react";
+import {React, useState, useRef, useEffect} from "react";
 import ImagePos from "./ImagePos";
 import ImageFilter from "./ImageFilter";
 import ImageBoarder from "./ImageBorder";
@@ -17,6 +17,9 @@ export default function ImageOpt(props) {
     const CurrentData = props.Idata.find((el) => el.id === props.ClickedID);
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
+    const z = useRef(props.Tdata.length + props.Idata.length + 1);
+    const [zflag, setZflag] = useState(true);
+
     const handleClick = (e) => {
         setAnchorEl(e.currentTarget);
     };
@@ -30,10 +33,15 @@ export default function ImageOpt(props) {
     };
 
     const deletButtonClick = () => {
-        props.SetIData(props.Idata.filter((el) => el.id !== props.ClickedID))
+        if(CurrentData) {
+            props.setZ(CurrentData.zindex);
+            props.SetIData(props.Idata.filter((el) => el.id !== props.ClickedID));
+            props.setZflag(props.zflag === 1 ? 0 : 1);
+        }     
         props.SetClickedID("un2");
         props.SetClickedType("Board");
     }
+
 
     const zfront = () => {
         const currentZ = props.Idata.find((el) => el.id === props.ClickedID).zindex;

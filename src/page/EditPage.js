@@ -18,6 +18,11 @@ import ZoomInIcon from '@mui/icons-material/ZoomIn';
 
 
 export default function EditPage() {
+    const location = useLocation();
+    const [Tdata, SetTData] = useState(location.state.Tdata); 
+    const [Idata, SetIData] = useState(location.state.Idata);
+    const pageFlag = location.state.pageFlag;
+
     const [zoomRatio, setZoomRatio] = useState(1);
     const [zoomView, setZoomView] = useState(false);
     const [ClickedID, SetClickedID] = useState("");
@@ -34,7 +39,10 @@ export default function EditPage() {
     const [lWidth,setlWidth] = useState(0);
     const temRef = useRef(null);
     const [scrollH, setScrollH] = useState(0);
-    const location = useLocation();
+    const [zflag, setZflag] = useState(-1);
+    const [z, setZ] = useState(Tdata.length + Idata.length + 1);
+    const [updatedID, setUpdatedID] = useState(location.state.updatedID);
+    const [updatedFile, setUpdatedFile] = useState(null);
 
     const updateScroll = (e) => {
         setScrollH(e.target.scrollTop)
@@ -42,7 +50,33 @@ export default function EditPage() {
 
     useEffect(() => {
         setlWidth(widthRef.current.offsetWidth);
-    },)   
+        // eslint-disable-next-line react-hooks/exhaustive-deps       
+    })
+    
+    useEffect(() => {
+        if (zflag !== -1) {
+            SetTData(Tdata.map((el) => el.zindex > z ? {...el, zindex: el.zindex - 1} : el))
+            SetIData(Idata.map((el) => el.zindex > z ? {...el, zindex: el.zindex - 1} : el))
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps       
+    }, [zflag])
+
+    useEffect(() => {
+        if(pageFlag) {
+            const textSize = [];
+            Tdata.map((el) => {
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                context.font = `${el.size + 3}px ${el.font}`;
+                const text = el.content.split("\n");
+                const width = (Math.max(...text.map((ell) => context.measureText(ell).width)));
+                const height = (text.length) * (el.size * 1.3);
+                textSize.push([width, height]);
+            })
+            SetTData(Tdata.map((el, index) => el ? {...el, width: textSize[index][0], height: textSize[index][1], flag: true} : el));
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps       
+    }, [])
 
     const darkTheme = createTheme({
         palette: {
@@ -55,9 +89,7 @@ export default function EditPage() {
 
     const temWidth = location.state.temWidth;
     const temHeight = location.state.temHeight;
-    const [Tdata, SetTData] = useState(location.state.Tdata);
     
-    const [Idata, SetIData] = useState(location.state.Idata);
     
     const TID = useRef(Tdata.length);
     const IID = useRef(Idata.length);
@@ -65,11 +97,11 @@ export default function EditPage() {
     const handleImageUpload = (e) => {
         if(e.target.files[0]) {
             const file = e.target.files[0]; // 선택한 파일 가져오기
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onloadend = () => {
-                SetIData(Idata.map((el) => el.id === ClickedID ? {...el, src: reader.result} : el))
-            }
+            setUpdatedFile(file);
+            SetIData(Idata.map((el) => el.id === ClickedID ? {...el, src: URL.createObjectURL(file)} : el));
+            const IDdata = updatedID;
+            IDdata[`${ClickedID}`] = file;
+            setUpdatedID(IDdata);
         }
     };
 
@@ -103,6 +135,7 @@ export default function EditPage() {
     const ImageSave = (e) => {
         if(e.target.files[0]) {
             const file = e.target.files[0]; // 선택한 파일 가져오기
+            setUpdatedFile(file);
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onloadend = () => {
@@ -111,6 +144,7 @@ export default function EditPage() {
             }
         }
     }
+
 
     const zfront = () => {
         const currentZ = (ClickedType === "Text") ? Tdata.find((el) => el.id === ClickedID).zindex : Idata.find((el) => el.id === ChangeCID).zindex;
@@ -173,7 +207,7 @@ export default function EditPage() {
                             </IconButton>
                             {zoomView && <Slider onChange={handleZoom} min={50} max={300} sx={{width: "150px", color:"white"}} value={zoomRatio*100}></Slider>}
                             <Box sx={{ flexGrow: 1 }} />
-                            <Link to="/preview" state = {{Tdata: Tdata, Idata: Idata, temHeight: temHeight, temWidth: temWidth}}>           
+                            <Link to="/preview" state = {{Tdata: Tdata, Idata: Idata, temHeight: temHeight, temWidth: temWidth, updatedID: updatedID}}>           
                                 <Button sx={{color: "white"}}>미리보기</Button>
                             </Link>
                         </Toolbar>
@@ -183,16 +217,16 @@ export default function EditPage() {
             <FlexMain style={{overflowY: "auto"}}>
                 <InputMain id = "board">
                     {(ClickedType === "Text" ? 
-                    <TextOpt Tdata={Tdata} SetTData={SetTData} Idata = {Idata} SetIData = {SetIData} ClickedID={ClickedID} SetClickedID = {SetClickedID} SetClickedType = {SetClickedType} backColorBol = {backColorBol} SetBackColorBol = {SetBackColorBol} zfront = {zfront} zbehind = {zbehind} zforward = {zforward} zbackward = {zbackward} IID = {IID} TID = {TID} zoomRatio = {zoomRatio} changeFlag = {changeFlag} setChangeFlag = {setChangeFlag} temHeight = {temHeight} temWidth = {temWidth}></TextOpt>
+                    <TextOpt Tdata={Tdata} SetTData={SetTData} Idata = {Idata} SetIData = {SetIData} ClickedID={ClickedID} SetClickedID = {SetClickedID} SetClickedType = {SetClickedType} backColorBol = {backColorBol} SetBackColorBol = {SetBackColorBol} zfront = {zfront} zbehind = {zbehind} zforward = {zforward} zbackward = {zbackward} IID = {IID} TID = {TID} zoomRatio = {zoomRatio} changeFlag = {changeFlag} setChangeFlag = {setChangeFlag} temHeight = {temHeight} temWidth = {temWidth} zflag = {zflag} setZflag = {setZflag} setZ = {setZ}></TextOpt>
                      : (ClickedType === "Image" ? 
-                     <ImageOpt style = {{overflow:"auto"}} Idata={Idata} SetIData={SetIData} Tdata = {Tdata} SetTData={SetTData} ClickedID={ClickedID} SetClickedID = {SetClickedID} inputRef = {inputRef} handleImageUpload = {handleImageUpload} newImageID = {newImageID} SetClickedType = {SetClickedType} zfront = {zfront} zbehind = {zbehind} zforward = {zforward} zbackward = {zbackward} IID = {IID} TID = {TID} zoomRatio = {zoomRatio} temHeight = {temHeight} temWidth = {temWidth}></ImageOpt> : 
+                     <ImageOpt style = {{overflow:"auto"}} Idata={Idata} SetIData={SetIData} Tdata = {Tdata} SetTData={SetTData} ClickedID={ClickedID} SetClickedID = {SetClickedID} inputRef = {inputRef} handleImageUpload = {handleImageUpload} newImageID = {newImageID} SetClickedType = {SetClickedType} zfront = {zfront} zbehind = {zbehind} zforward = {zforward} zbackward = {zbackward} IID = {IID} TID = {TID} zoomRatio = {zoomRatio} temHeight = {temHeight} temWidth = {temWidth} zflag = {zflag} setZflag = {setZflag} setZ = {setZ}></ImageOpt> : 
                      <div></div>))}  
                 </InputMain>
 
                 <DisplayMain id = "un1" onClick={ChangeCID} className="Board" ref={widthRef} onScroll={updateScroll}>
                     <Template id = "un2" className="Board" ref = {temRef} style = {{cursor: (flag && img) ? "crosshair" : "default"}} zoomRatio = {zoomRatio} temHeight = {temHeight} temWidth = {temWidth} lWidth = {lWidth} >
-                        <TextView Tdata = {Tdata} SetTData={SetTData} Idata = {Idata} SetIData = {SetIData} ClickedID = {ClickedID} SetClickedID = {SetClickedID} ClickedType = {ClickedType} SetClickedType = {SetClickedType} SetBackColorBol = {SetBackColorBol} zoomRatio = {zoomRatio} changeFlag = {changeFlag} setChangeFlag = {setChangeFlag} newChangeID = {newChangeID} setNewChangeID = {setNewChangeID} temHeight = {temHeight} temWidth = {temWidth} flag = {location.state.flag}></TextView>
-                        <ImageView Idata = {Idata} SetIData = {SetIData} ClickedID = {ClickedID} SetClickedID = {SetClickedID} ClickedType = {ClickedType} SetClickedType = {SetClickedType} Tdata = {Tdata} SetTData = {SetTData} inputRef = {inputRef} handleImageUpload = {handleImageUpload} flag = {flag} SetFlag = {SetFlag} TID = {TID} IID = {IID} img = {img} setImg = {setImg} zoomRatio = {zoomRatio}></ImageView>
+                        <TextView Tdata = {Tdata} SetTData={SetTData} Idata = {Idata} SetIData = {SetIData} ClickedID = {ClickedID} SetClickedID = {SetClickedID} ClickedType = {ClickedType} SetClickedType = {SetClickedType} SetBackColorBol = {SetBackColorBol} zoomRatio = {zoomRatio} changeFlag = {changeFlag} setChangeFlag = {setChangeFlag} newChangeID = {newChangeID} setNewChangeID = {setNewChangeID} temHeight = {temHeight} temWidth = {temWidth}></TextView>
+                        <ImageView Idata = {Idata} SetIData = {SetIData} ClickedID = {ClickedID} SetClickedID = {SetClickedID} ClickedType = {ClickedType} SetClickedType = {SetClickedType} Tdata = {Tdata} SetTData = {SetTData} inputRef = {inputRef} handleImageUpload = {handleImageUpload} flag = {flag} SetFlag = {SetFlag} TID = {TID} IID = {IID} img = {img} setImg = {setImg} zoomRatio = {zoomRatio} updatedFile = {updatedFile} setUpdatedFile = {setUpdatedFile} updatedID = {updatedID} setUpdatedID = {setUpdatedID}></ImageView>
                     </Template>                  
                 </DisplayMain>
             </FlexMain>

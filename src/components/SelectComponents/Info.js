@@ -62,7 +62,7 @@ function Info(props) {
           <div className="description">
             <div className="templeteName">{title}</div>
             <TempleteTag sample={taglist}></TempleteTag>
-            <Link to="/edit"/*+[templete id] */ state={{Tdata: Tdata, Idata: Idata, id: id, temWidth: temWidth, temHeight: temHeight, flag: true}}>
+            <Link to="/edit"/*+[templete id] */ state={{Tdata: Tdata, Idata: Idata, id: id, temWidth: temWidth, temHeight: temHeight, pageFlag: true, updatedID: {}}}>
               <button id="startEditBtn">편집하기</button>
             </Link>
           </div>

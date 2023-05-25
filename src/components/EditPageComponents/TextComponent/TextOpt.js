@@ -1,4 +1,4 @@
-import {React, useState} from "react";
+import {React, useState, useEffect, useRef} from "react";
 import TextFont from "./TextFont";
 import TextPos from "./TextPos";
 import Menu from '@mui/material/Menu';
@@ -16,10 +16,19 @@ export default function TextOpt(props) {
 
     const data = props.Tdata.find((el) => el.id === props.ClickedID);
     const deletButtonClick = () => {
-        props.SetTData(props.Tdata.filter((el) => el.id !== props.ClickedID))
+        if(data) {
+            props.setZ(data.zindex);
+            props.SetTData(props.Tdata.filter((el) => el.id !== props.ClickedID))
+            props.setZflag(props.zflag === 1 ? 0 : 1);
+            /*
+            props.SetTData(props.Tdata.map((el) => el.zindex > z ? {...el, zindex: el.zindex - 1} : el))
+            props.SetIData(props.Idata.map((el) => el.zindex > z ? {...el, zindex: el.zindex - 1} : el))
+            */
+        }      
         props.SetClickedID("un2");
         props.SetClickedType("Board");
     }
+
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (e) => {

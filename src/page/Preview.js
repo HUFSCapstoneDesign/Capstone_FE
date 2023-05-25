@@ -7,10 +7,6 @@ import { DisplayMain } from "../styles/emotion";
 import { Template } from "../styles/emotion";
 import html2canvas from "html2canvas"
 
-function Header() {
-  return <div className="header"></div>;
-}
-
 function AddInfo(props) {
   const textarea = useRef();
 
@@ -31,7 +27,6 @@ function AddInfo(props) {
   };
 
   const ImageSave = () => {
-    console.log(document.getElementById("view"));
     html2canvas(document.getElementById("view")).then((canvas) => {
       const link = document.createElement("a");
       link.download = "image";
@@ -62,7 +57,7 @@ function AddInfo(props) {
       </select>
       <span className="name">| 태그</span>
       <AddTag setTag={props.setTag}></AddTag>
-      <Button variant="contained" style = {{position: "absolute", left: "180px", top: "600px"}} onClick={ImageSave}>이미지</Button>
+      <Button variant="contained" style = {{position: "absolute", left: "120px", top: "600px"}} onClick={ImageSave}>이미지</Button>
     </div>
   );
 }
@@ -143,12 +138,12 @@ function Result({Idata, Tdata}) {
             resize: "none",
             outline: "none",
             whiteSpace: "pre",
-            width: `${el.width}px`,
-            height: `${el.height}px`,
+            padding: "2px"
           }}>{el.content}</pre>)}
         {Idata.map((el) => <img
           key={el.id}
           src = {el.src}
+          alt = {"이미지"}
           style={{
             position: "absolute",
             left: el.x,
@@ -174,14 +169,14 @@ function Preview(props) {
   const [tag, setTag] = useState();
   const widthRef = useRef(null);
   const [lWidth, setlWidth] = useState(0);
-  const [left, setLeft] = useState(0);
 
   useEffect(() => {
     setlWidth(widthRef.current.offsetWidth);
-},)  
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[])  
 
   const sampleCategory = [
-    { id: 1, name: "test1" },
+    { id: 1, name: "패션" },
     { id: 2, name: "test2" },
   ];
   const location = useLocation();
@@ -200,7 +195,7 @@ function Preview(props) {
       <ThemeProvider theme={darkTheme}>
         <AppBar position="static" style={{backgroundColor: "#1F1F1F"}}>
           <Toolbar variant="dense" style={{marginLeft:"-10px"}}>
-            <Link to="/edit" state = {{Tdata: location.state.Tdata, Idata: location.state.Idata, temHeight: location.state.temHeight, temWidth: location.state.temWidth, flag: false}}>           
+            <Link to="/edit" state = {{Tdata: location.state.Tdata, Idata: location.state.Idata, temHeight: location.state.temHeight, temWidth: location.state.temWidth, pageFlag: false, updatedID: location.state.updatedID}}>           
               <Button sx={{color: "white"}}>편집하기</Button>
             </Link>
           </Toolbar>
