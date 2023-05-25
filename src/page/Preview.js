@@ -1,11 +1,18 @@
-import {React, useState, useRef, useEffect } from "react";
+import { React, useState, useRef, useEffect } from "react";
 import "../styles/Preview.css";
 import { Link, useLocation } from "react-router-dom";
 import { MainPage } from "../styles/emotion";
-import { createTheme, ThemeProvider, AppBar, Toolbar, Button } from "@mui/material";
+import {
+  createTheme,
+  ThemeProvider,
+  AppBar,
+  Toolbar,
+  Button,
+} from "@mui/material";
 import { DisplayMain } from "../styles/emotion";
 import { Template } from "../styles/emotion";
-import html2canvas from "html2canvas"
+import html2canvas from "html2canvas";
+import ImageCropping from "../components/PreviewComponents/ImageCropping";
 
 function AddInfo(props) {
   const textarea = useRef();
@@ -30,13 +37,13 @@ function AddInfo(props) {
     html2canvas(document.getElementById("view")).then((canvas) => {
       const link = document.createElement("a");
       link.download = "image";
-      link.href = canvas.toDataURL('image/png');
+      link.href = canvas.toDataURL("image/png");
       //setImage(link.href.replace('/^data:image\/\w+;base,/',''));
-      
+
       document.body.appendChild(link);
       link.click();
     });
-  }
+  };
 
   return (
     <div className="addinfo">
@@ -52,12 +59,20 @@ function AddInfo(props) {
       <span className="name">| 카테고리</span>
       <select className="category" onChange={categoryChange}>
         {props.sample.map((item, idx) => (
-          <option value={item.id} key={idx}>{item.name}</option>
+          <option value={item.id} key={idx}>
+            {item.name}
+          </option>
         ))}
       </select>
       <span className="name">| 태그</span>
       <AddTag setTag={props.setTag}></AddTag>
-      <Button variant="contained" style = {{position: "absolute", left: "120px", top: "600px"}} onClick={ImageSave}>이미지</Button>
+      <Button
+        variant="contained"
+        style={{ position: "absolute", left: "120px", top: "600px" }}
+        onClick={ImageSave}
+      >
+        이미지
+      </Button>
     </div>
   );
 }
@@ -113,37 +128,56 @@ function AddTag(props) {
   );
 }
 
-function Result({Idata, Tdata}) {
+function Result({ Idata, Tdata }) {
   const rgba = (rgb, opa) => {
-    return "rgba(" + String(rgb.substr(0,3)) + "," + String(rgb.substr(3,3)) + "," + String(rgb.substr(6,3)) + "," + String(opa) + ")" 
-  }
+    return (
+      "rgba(" +
+      String(rgb.substr(0, 3)) +
+      "," +
+      String(rgb.substr(3, 3)) +
+      "," +
+      String(rgb.substr(6, 3)) +
+      "," +
+      String(opa) +
+      ")"
+    );
+  };
   return (
     <>
-        {Tdata.map((el) => el.content && <pre
+      {Tdata.map(
+        (el) =>
+          el.content && (
+            <pre
+              key={el.id}
+              style={{
+                position: "absolute",
+                marginLeft: `${el.x}px`,
+                marginTop: `${el.y}px`,
+                zIndex: el.zindex,
+                background: rgba(el.backcolor, el.backopa),
+                fontFamily: `${el.font}`,
+                fontSize: `${el.size}px`,
+                fontWeight: el.bold ? "bold" : "normal",
+                fontStyle: el.italic ? "italic" : "normal",
+                textDecorationLine: el.underlined ? "underline" : "none",
+                textAlign: `${el.align}`,
+                color: rgba(el.textcolor, el.textopa),
+                zIndex: el.zindex,
+                resize: "none",
+                outline: "none",
+                whiteSpace: "pre",
+                padding: "2px",
+              }}
+            >
+              {el.content}
+            </pre>
+          )
+      )}
+      {Idata.map((el) => (
+        <img
           key={el.id}
-          style={{
-            position: "absolute",
-            marginLeft: `${el.x}px`,
-            marginTop: `${el.y}px`,
-            zIndex: el.zindex,
-            background: rgba(el.backcolor, el.backopa),
-            fontFamily: `${el.font}`,
-            fontSize: `${el.size}px`, 
-            fontWeight: (el.bold) ? "bold" : "normal", 
-            fontStyle: (el.italic) ? "italic" : "normal", 
-            textDecorationLine: (el.underlined) ? "underline" : "none", 
-            textAlign: `${el.align}`, 
-            color: rgba(el.textcolor, el.textopa),
-            zIndex: (el.zindex),
-            resize: "none",
-            outline: "none",
-            whiteSpace: "pre",
-            padding: "2px"
-          }}>{el.content}</pre>)}
-        {Idata.map((el) => <img
-          key={el.id}
-          src = {el.src}
-          alt = {"이미지"}
+          src={el.src}
+          alt={"이미지"}
           style={{
             position: "absolute",
             left: el.x,
@@ -156,11 +190,12 @@ function Result({Idata, Tdata}) {
             borderRadius: el.radius,
             zIndex: el.zindex,
             opacity: el.opacity,
-            filter: `blur(${el.blur}px) brightness(${el.brightness}%) contrast(${el.contrast}%) grayscale(${el.grayscale}%) hue-rotate(${el.hue}deg) invert(${el.invert}%) saturate(${el.saturate}%) sepia(${el.sepia}%)`
-          }} 
-        ></img>)}
+            filter: `blur(${el.blur}px) brightness(${el.brightness}%) contrast(${el.contrast}%) grayscale(${el.grayscale}%) hue-rotate(${el.hue}deg) invert(${el.invert}%) saturate(${el.saturate}%) sepia(${el.sepia}%)`,
+          }}
+        ></img>
+      ))}
     </>
-  )
+  );
 }
 
 function Preview(props) {
@@ -173,7 +208,7 @@ function Preview(props) {
   useEffect(() => {
     setlWidth(widthRef.current.offsetWidth);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[])  
+  }, []);
 
   const sampleCategory = [
     { id: 1, name: "패션" },
@@ -183,20 +218,30 @@ function Preview(props) {
 
   const darkTheme = createTheme({
     palette: {
-      mode: 'dark',
+      mode: "dark",
       primary: {
-        main: '#1976d2',
+        main: "#1976d2",
       },
     },
-});
+  });
 
   return (
     <MainPage>
       <ThemeProvider theme={darkTheme}>
-        <AppBar position="static" style={{backgroundColor: "#1F1F1F"}}>
-          <Toolbar variant="dense" style={{marginLeft:"-10px"}}>
-            <Link to="/edit" state = {{Tdata: location.state.Tdata, Idata: location.state.Idata, temHeight: location.state.temHeight, temWidth: location.state.temWidth, pageFlag: false, updatedID: location.state.updatedID}}>           
-              <Button sx={{color: "white"}}>편집하기</Button>
+        <AppBar position="static" style={{ backgroundColor: "#1F1F1F" }}>
+          <Toolbar variant="dense" style={{ marginLeft: "-10px" }}>
+            <Link
+              to="/edit"
+              state={{
+                Tdata: location.state.Tdata,
+                Idata: location.state.Idata,
+                temHeight: location.state.temHeight,
+                temWidth: location.state.temWidth,
+                pageFlag: false,
+                updatedID: location.state.updatedID,
+              }}
+            >
+              <Button sx={{ color: "white" }}>편집하기</Button>
             </Link>
           </Toolbar>
         </AppBar>
@@ -208,9 +253,18 @@ function Preview(props) {
           setCategory={setCategory}
           setTag={setTag}
         ></AddInfo>
-        <DisplayMain ref = {widthRef} id = "display">
-          <Template id = "view" temWidth = {location.state.temWidth} temHeight = {location.state.temHeight} lWidth = {lWidth} zoomRatio = {1}>
-            <Result Tdata={location.state.Tdata} Idata = {location.state.Idata}></Result>
+        <DisplayMain ref={widthRef} id="display">
+          <Template
+            id="view"
+            temWidth={location.state.temWidth}
+            temHeight={location.state.temHeight}
+            lWidth={lWidth}
+            zoomRatio={1}
+          >
+            <Result
+              Tdata={location.state.Tdata}
+              Idata={location.state.Idata}
+            ></Result>
           </Template>
         </DisplayMain>
       </div>
