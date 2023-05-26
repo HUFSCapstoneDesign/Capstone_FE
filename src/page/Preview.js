@@ -2,7 +2,9 @@ import { React, useState, useRef, useEffect } from "react";
 import "../styles/Preview.css";
 import { Link, useLocation } from "react-router-dom";
 import { MainPage } from "../styles/emotion";
-import AWS from 'aws-sdk'
+import AWS from 'aws-sdk';
+import uuid from 'react-uuid';
+import axios from 'axios'
 import {
   createTheme,
   ThemeProvider,
@@ -259,7 +261,7 @@ function Preview(props) {
     },
   });
 
-  const uploadData = () => {
+  const uploadData = async() => {
     const Tdata = location.state.Tdata;
     const Idata = location.state.Idata;
     console.log(location.state.updatedID);
@@ -270,21 +272,22 @@ function Preview(props) {
       secretAccessKey: "",
     })
 
-    const upload = async(file, id) => {
-      const s3 = new AWS.S3();
-      const params = {
+    const upload = async(file) => {
+      const s3 = new new AWS.S3.ManagedUpload({
+      params: {
         Bucket: "bucket",
-        Key: "",
+        Key: uuid() + file.lastModified,
         Body: file, 
         ACL: 'public-read'
-      }
+      }})
       try {
-        const promise = await s3.upload(params).promise();
-        console.log(promise);
+        const promise = await s3.promise();
+        return promise.Location;
         //Idata에 id해당되는 부분 src쪽 내용 수정
       }
       catch(error) {
         console.log("upload error");
+        return null;
       }
     }
     // aws 사진 전송
@@ -293,10 +296,17 @@ function Preview(props) {
     해당 key에 해당되는 Idata의 src 부분 url 교체
     const updatedID = location.state.updatedID
     for(var key in updatedID) {
-      upload(updatedID[key], key);
+      const URL = upload(updatedID[key]);
+      const Ndata = Idata.map((el) => el.id === key ? {...el, src: URL} : el);
+      URL && Idata = Ndata;
     }
-    */
 
+    const MainURL = upload(mainImage);
+    MainURL && setMainImage(MainURL);
+
+    const FullURL = upload(fullImage);
+    FullURL && setFullImage(FullURL);
+    */
     
     const Tkey = ["flag", "width", "height", "id"];
     const Ikey = ["id"];
@@ -305,8 +315,12 @@ function Preview(props) {
     const TagData = tag ? tag.map((el) => ({"tagName": el})) : {};
     console.log({"images": Idata, "texts": Tdata, "tags": TagData, "categoryId" : category, "fullImageSrc" : fullImage, "mainImageSrc": mainImage, "templateName": title});
     /*
-    axios 전송 내용
-    텍스트 데이터
+    axios 데이터 전송
+    await axios.post("url", {"images": Idata, "texts": Tdata, "tags": TagData, "categoryId" : category, "fullImageSrc" : fullImage, "mainImageSrc": mainImage, "templateName": title}).then(function(response) {
+      console.log("데이터 전송 완료")
+    }).catch(function(error)) {
+      console.log("axios.post 오류 발생")
+    }
     */
   }
 
