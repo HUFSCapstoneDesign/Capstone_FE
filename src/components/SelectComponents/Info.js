@@ -2,31 +2,32 @@ import React from "react";
 import { Link, Outlet } from "react-router-dom";
 import "../../styles/Info.css";
 
-//더미 fullimage
-import fullimage from "../../images/testing.png";
+//test img
+import timage from "../../images/testing.png";
 
 function TempleteTag(props) {
   const lis = [];
   for (let i = 0; i < props.sample.length; i++) {
     let temp = props.sample[i];
-    lis.push(<li className="tag" key = {i}># {temp.tag}</li>);
+    lis.push(<li className="tag" key = {i}># {temp.tagName}</li>);
   }
   return <ol className="tagList">{lis}</ol>;
 }
 
 function Info(props) {
   // props.id = 팝업창에 띄울 템플릿의 id
-  // id에 해당하는 fullimage, category, title 불러오기
+  // id에 해당하는 fullImageSrc, tag, templateName 불러오기
 
   //더미데이터
   const taglist = [
-    { tag: "This" },
-    { tag: "is" },
-    { tag: "sample" },
-    { tag: "tag" },
-    { tag: "sampletag" },
+    { tagName: "This" },
+    { tagName: "is" },
+    { tagName: "sample" },
+    { tagName: "tag" },
+    { tagName: "sampletag" },
   ];
-  const title = "템플릿 이름";
+  const templateName = "템플릿 이름";
+  const fullImageSrc = timage;
 
   function closeInfo() {
     props.closeInfo();
@@ -57,10 +58,10 @@ function Info(props) {
 
         <div className="introduce">
           <div className="imgScrollBox">
-            <img src={fullimage} alt=""></img>
+            <img src={fullImageSrc} alt=""></img>
           </div>
           <div className="description">
-            <div className="templeteName">{title}</div>
+            <div className="templeteName">{templateName}</div>
             <TempleteTag sample={taglist}></TempleteTag>
             <Link to="/edit"/*+[templete id] */ state={{Tdata: Tdata, Idata: Idata, id: id, temWidth: temWidth, temHeight: temHeight, pageFlag: true, updatedID: {}}}>
               <button id="startEditBtn">편집하기</button>

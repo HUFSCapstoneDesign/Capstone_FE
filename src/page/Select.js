@@ -28,7 +28,7 @@ function Search(props) {
   if (check === 1) {
     searched = props.data.filter((item) => item.title.includes(userInput));
   } else if (check === 2) {
-    searched = props.data.filter((item) => item.category.includes(userSelect));
+    searched = props.data.filter((item) => item.categoryName.includes(userSelect));
   }
 
   const lis = [];
@@ -45,7 +45,7 @@ function Search(props) {
       <input
         className="category"
         type="button"
-        value={temp.category}
+        value={temp.categoryName}
         key={temp.id}
         onClick={getCate}
       ></input>
@@ -82,10 +82,10 @@ function TempleteList(props) {
           setInfoOpen(!InfoOpen);
         }}
       >
-        <img className="mainImage" src={temp.mainimage} alt=""></img>
+        <img className="mainImage" src={temp.mainImageSrc} alt=""></img>
         <div className="templeteInfo">
-          <span className="templeteCate">{temp.category}</span>
-          <span className="templeteTitle">{temp.title}</span>
+          <span className="templeteCate">{temp.categoryName}</span>
+          <span className="templeteTitle">{temp.templateName}</span>
         </div>
       </li>
     );
@@ -114,12 +114,12 @@ function Select() {
   for (let i = 1; i < 10; i++) {
     data.push({
       id: i,
-      title: "템플릿Title" + i,
-      category: "카테고리" + i,
-      mainimage: mainimage,
+      templateName: "템플릿Title" + i,
+      categoryName: "카테고리" + i,
+      mainImageSrc: mainimage,
     });
   }
-  //템플릿의 id, title, category, mainimage 필요
+  //템플릿의 id, templateName, categoryName, mainImageSrc 필요
 
   return (
     <div className="templeteContainer">
