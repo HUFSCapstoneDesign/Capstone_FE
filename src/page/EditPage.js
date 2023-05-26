@@ -49,11 +49,15 @@ export default function EditPage() {
     }
 
     useEffect(() => {
-        setlWidth(widthRef.current.offsetWidth);
+        
+        setlWidth(document.getElementById("un1").offsetWidth);
         const setWidth = () => {
-            setlWidth(widthRef.current.offsetWidth);   
+            setlWidth(document.getElementById("un1").offsetWidth);   
         }
         window.addEventListener('resize', setWidth);
+        return() => {
+            window.removeEventListener('resize', setWidth);
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps       
     }, [])
     
@@ -148,7 +152,6 @@ export default function EditPage() {
             }
         }
     }
-
 
     const zfront = () => {
         const currentZ = (ClickedType === "Text") ? Tdata.find((el) => el.id === ClickedID).zindex : Idata.find((el) => el.id === ChangeCID).zindex;

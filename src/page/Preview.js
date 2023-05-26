@@ -206,14 +206,18 @@ function Preview(props) {
   const [imageLink, setImageLink] = useState(null);
   const [mainImage, setMainImage] = useState(null);
   const [fullImage, setFullImage] = useState(null);
+  
 
   useEffect(() => {
-    setlWidth(widthRef.current.offsetWidth);
-        const setWidth = () => {
-            setlWidth(widthRef.current.offsetWidth);   
-        }
+    setlWidth(document.getElementById("display").offsetWidth);
+    const setWidth = () => {
+      setlWidth(document.getElementById("display").offsetWidth);   
+    }
     window.addEventListener('resize', setWidth);
     // eslint-disable-next-line react-hooks/exhaustive-deps
+    return() => {
+      window.removeEventListener('resize', setWidth);
+  }
   }, []);
 
   useEffect(() => {
@@ -292,6 +296,8 @@ function Preview(props) {
       upload(updatedID[key], key);
     }
     */
+
+    
     const Tkey = ["flag", "width", "height", "id"];
     const Ikey = ["id"];
     Tdata.map((el) => (Tkey.map((ell) => delete el[ell])));
