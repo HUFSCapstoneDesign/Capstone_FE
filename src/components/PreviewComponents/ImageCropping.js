@@ -18,7 +18,6 @@ function ImageCropping(dataURL) {
   context.drawImage(image, 0, 0, size, size, 0, 0, size, size);
 
   const croppedDataURL = canvas.toDataURL("image/jpeg");
-  console.log(croppedDataURL);
 
   //dataURL을 s3에 저장하기 위한 파일생성
   function dataURLtoFile(dataURL, fileName) {
@@ -37,7 +36,7 @@ function ImageCropping(dataURL) {
   const file = dataURLtoFile(croppedDataURL, fileName);
   //body: file로? (작동하는지 확인되지 않음)
 
-  return croppedDataURL;
+  return file;
 }
 
 export default ImageCropping;

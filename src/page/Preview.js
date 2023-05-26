@@ -2,6 +2,7 @@ import { React, useState, useRef, useEffect } from "react";
 import "../styles/Preview.css";
 import { Link, useLocation } from "react-router-dom";
 import { MainPage } from "../styles/emotion";
+import AWS from 'aws-sdk'
 import {
   createTheme,
   ThemeProvider,
@@ -9,6 +10,7 @@ import {
   Toolbar,
   Button,
 } from "@mui/material";
+import Box from '@mui/material/Box';
 import { DisplayMain } from "../styles/emotion";
 import { Template } from "../styles/emotion";
 import html2canvas from "html2canvas";
@@ -34,15 +36,9 @@ function AddInfo(props) {
   };
 
   const ImageSave = () => {
-    html2canvas(document.getElementById("view")).then((canvas) => {
-      const link = document.createElement("a");
-      link.download = "image";
-      link.href = canvas.toDataURL("image/png");
-      //setImage(link.href.replace('/^data:image\/\w+;base,/',''));
-
-      document.body.appendChild(link);
-      link.click();
-    });
+    const link = props.imageLink;
+    document.body.appendChild(link);
+    link.click();
   };
 
   return (
@@ -59,7 +55,7 @@ function AddInfo(props) {
       <span className="name">| 카테고리</span>
       <select className="category" onChange={categoryChange}>
         {props.sample.map((item, idx) => (
-          <option value={item.id} key={idx}>
+          <option value={item.value ? item.value : ""} key={idx}>
             {item.name}
           </option>
         ))}
@@ -68,7 +64,7 @@ function AddInfo(props) {
       <AddTag setTag={props.setTag}></AddTag>
       <Button
         variant="contained"
-        style={{ position: "absolute", left: "120px", top: "600px" }}
+        style={{ position: "absolute", left: "110px", top: "600px" }}
         onClick={ImageSave}
       >
         이미지
@@ -78,7 +74,7 @@ function AddInfo(props) {
 }
 
 function AddTag(props) {
-  const [Tagitem, setTagitem] = useState();
+  const [Tagitem, setTagitem] = useState(null);
   const [TagList, setTagList] = useState([]);
 
   const onKeyPress = (e) => {
@@ -89,7 +85,7 @@ function AddTag(props) {
 
   const submitTagItem = () => {
     let updatedTagList = [...TagList];
-    updatedTagList.push(Tagitem);
+    Tagitem && updatedTagList.push(Tagitem);
     setTagList(updatedTagList);
     setTagitem("");
     props.setTag(updatedTagList);
@@ -111,7 +107,7 @@ function AddTag(props) {
         type="text"
         placeholder="추가할 태그를 입력하세요"
         onChange={(e) => setTagitem(e.target.value)}
-        value={Tagitem}
+        value={ Tagitem ? Tagitem : ""}
         onKeyPress={onKeyPress}
       />
       {TagList.map((tagItem, index) => {
@@ -166,7 +162,10 @@ function Result({ Idata, Tdata }) {
                 resize: "none",
                 outline: "none",
                 whiteSpace: "pre",
-                padding: "2px",
+                paddingLeft: el.align === "left" ? "2px" : el.align === "right" ? "10px" : "10px",
+                paddingRight: el.align === "left" ? "10px" : el.align === "right" ? "2px" : "10px",
+                paddingTop: "3px",
+                paddingBottom:"3px"
               }}
             >
               {el.content}
@@ -204,11 +203,42 @@ function Preview(props) {
   const [tag, setTag] = useState();
   const widthRef = useRef(null);
   const [lWidth, setlWidth] = useState(0);
+  const [imageLink, setImageLink] = useState(null);
+  const [mainImage, setMainImage] = useState(null);
+  const [fullImage, setFullImage] = useState(null);
 
   useEffect(() => {
     setlWidth(widthRef.current.offsetWidth);
+        const setWidth = () => {
+            setlWidth(widthRef.current.offsetWidth);   
+        }
+    window.addEventListener('resize', setWidth);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    html2canvas(document.getElementById("view")).then((canvas) => {
+      const link = document.createElement("a");
+      link.download = "image";
+      link.href = canvas.toDataURL("image/jpeg");
+      setImageLink(link);
+      const imageURL = link.href.replace('/^data:image\/\w+;base,/','');
+      setMainImage(ImageCropping(imageURL));
+      function dataURLtoFile(dataURL) {
+        const arr = dataURL.split(",");
+        const mime = arr[0].match(/:(.*?);/)[1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new File([u8arr], 'fullImage.jpg', { type: mime });
+      }
+
+      setFullImage(dataURLtoFile(imageURL));
+    });
+  }, [])
 
   const sampleCategory = [
     { id: 1, name: "패션" },
@@ -224,6 +254,55 @@ function Preview(props) {
       },
     },
   });
+
+  const uploadData = () => {
+    const Tdata = location.state.Tdata;
+    const Idata = location.state.Idata;
+    console.log(location.state.updatedID);
+
+    AWS.config.update({
+      region: "",
+      accessKeyId: "",
+      secretAccessKey: "",
+    })
+
+    const upload = async(file, id) => {
+      const s3 = new AWS.S3();
+      const params = {
+        Bucket: "bucket",
+        Key: "",
+        Body: file, 
+        ACL: 'public-read'
+      }
+      try {
+        const promise = await s3.upload(params).promise();
+        console.log(promise);
+        //Idata에 id해당되는 부분 src쪽 내용 수정
+      }
+      catch(error) {
+        console.log("upload error");
+      }
+    }
+    // aws 사진 전송
+    /*
+    updatedID에 들어있는 value 값 aws에 업로드
+    해당 key에 해당되는 Idata의 src 부분 url 교체
+    const updatedID = location.state.updatedID
+    for(var key in updatedID) {
+      upload(updatedID[key], key);
+    }
+    */
+    const Tkey = ["flag", "width", "height", "id"];
+    const Ikey = ["id"];
+    Tdata.map((el) => (Tkey.map((ell) => delete el[ell])));
+    Idata.map((el) => (Ikey.map((ell) => delete el[ell])));
+    const TagData = tag ? tag.map((el) => ({"tagName": el})) : {};
+    console.log({"images": Idata, "texts": Tdata, "tags": TagData, "categoryId" : category, "fullImageSrc" : fullImage, "mainImageSrc": mainImage, "templateName": title});
+    /*
+    axios 전송 내용
+    텍스트 데이터
+    */
+  }
 
   return (
     <MainPage>
@@ -243,6 +322,8 @@ function Preview(props) {
             >
               <Button sx={{ color: "white" }}>편집하기</Button>
             </Link>
+            <Box sx={{ flexGrow: 1 }} />
+            <Button sx={{ color: "white" }} onClick={uploadData}>저장하기</Button>
           </Toolbar>
         </AppBar>
       </ThemeProvider>
@@ -252,6 +333,7 @@ function Preview(props) {
           setTitle={setTitle}
           setCategory={setCategory}
           setTag={setTag}
+          imageLink = {imageLink}
         ></AddInfo>
         <DisplayMain ref={widthRef} id="display">
           <Template

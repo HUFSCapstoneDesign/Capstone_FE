@@ -50,8 +50,12 @@ export default function EditPage() {
 
     useEffect(() => {
         setlWidth(widthRef.current.offsetWidth);
+        const setWidth = () => {
+            setlWidth(widthRef.current.offsetWidth);   
+        }
+        window.addEventListener('resize', setWidth);
         // eslint-disable-next-line react-hooks/exhaustive-deps       
-    })
+    }, [])
     
     useEffect(() => {
         if (zflag !== -1) {
