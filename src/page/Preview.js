@@ -146,7 +146,7 @@ function Result({ Idata, Tdata }) {
         (el) =>
           el.content && (
             <pre
-              key={el.id}
+              key={`${"1" + el.id}`}
               style={{
                 position: "absolute",
                 marginLeft: `${el.x}px`,
@@ -176,7 +176,7 @@ function Result({ Idata, Tdata }) {
       )}
       {Idata.map((el) => (
         <img
-          key={el.id}
+          key={`${"2"+el.id}`}
           src={el.src}
           alt={"이미지"}
           style={{
@@ -263,57 +263,11 @@ function Preview(props) {
 
   const uploadData = async() => {
     const Tdata = location.state.Tdata;
-    const Idata = location.state.Idata;
-    console.log(location.state.updatedID);
+    const Idata =  location.state.Idata;
+    const updatedID = location.state.updatedID;
 
-    AWS.config.update({
-      region: "",
-      accessKeyId: "",
-      secretAccessKey: "",
-    })
-
-    const upload = async(file) => {
-      const s3 = new new AWS.S3.ManagedUpload({
-      params: {
-        Bucket: "bucket",
-        Key: uuid() + file.lastModified,
-        Body: file, 
-        ACL: 'public-read'
-      }})
-      try {
-        const promise = await s3.promise();
-        return promise.Location;
-        //Idata에 id해당되는 부분 src쪽 내용 수정
-      }
-      catch(error) {
-        console.log("upload error");
-        return null;
-      }
-    }
-    // aws 사진 전송
-    /*
-    updatedID에 들어있는 value 값 aws에 업로드
-    해당 key에 해당되는 Idata의 src 부분 url 교체
-    const updatedID = location.state.updatedID
-    for(var key in updatedID) {
-      const URL = upload(updatedID[key]);
-      const Ndata = Idata.map((el) => el.id === key ? {...el, src: URL} : el);
-      URL && Idata = Ndata;
-    }
-
-    const MainURL = upload(mainImage);
-    MainURL && setMainImage(MainURL);
-
-    const FullURL = upload(fullImage);
-    FullURL && setFullImage(FullURL);
-    */
-    
-    const Tkey = ["flag", "width", "height", "id"];
-    const Ikey = ["id"];
-    Tdata.map((el) => (Tkey.map((ell) => delete el[ell])));
-    Idata.map((el) => (Ikey.map((ell) => delete el[ell])));
-    const TagData = tag ? tag.map((el) => ({"tagName": el})) : {};
-    console.log({"images": Idata, "texts": Tdata, "tags": TagData, "categoryId" : category, "fullImageSrc" : fullImage, "mainImageSrc": mainImage, "templateName": title});
+    let NTdata = Tdata.map((el) => ({x: el.x, y: el.y, content: el.content, size: el.size, font: el.font, bold: el.bold, italic: el.italic, underlined: el.underlined, align: el.align, textcolor: el.textcolor, textopa: el.textopa, backcolor: el.backcolor, backopa: el.backopa, zindex: el.zindex}));
+    let NIdata = Idata.map((el) => ({id: el.id, x: el.x, y: el.y, src: el.src, width: el.width, height: el.height, zindex: el.zindex, borderstyle: el.borderstyle, bordersize: el.bordersize, bordercolor: el.bordercolor, opacity: el.opacity, radius: el.radius, blur: el.blur, brightness : el.brightness, contrast: el.contrast, grayscale: el.grayscale, hue: el.hue, invert:el.invert, saturate: el.saturate, sepia: el.sepia}))
     /*
     axios 데이터 전송
     await axios.post("url", {"images": Idata, "texts": Tdata, "tags": TagData, "categoryId" : category, "fullImageSrc" : fullImage, "mainImageSrc": mainImage, "templateName": title}).then(function(response) {
@@ -322,6 +276,60 @@ function Preview(props) {
       console.log("axios.post 오류 발생")
     }
     */
+
+    AWS.config.update({
+      region: "",
+      accessKeyId: "",
+      secretAccessKey: "",
+    })
+
+    const upload = async(file, id) => {
+      const s3 = new AWS.S3.ManagedUpload({
+      params: {
+        Bucket:  "templates-image-bucket",
+        Key: `${uuid() + file.lastModified + file.name}`,
+        Body: file, 
+        ACL: 'public-read'
+      }})
+      try {
+        const promise = await s3.promise();
+        NIdata = NIdata.map((el) => el.id === id ? {...el, src: promise.Location} : el);
+
+        //Idata에 id해당되는 부분 src쪽 내용 수정
+      }
+      catch(error) {
+        console.log("upload error");
+        console.log(error);
+      }
+    }
+
+    for(var key in updatedID) {
+      upload(updatedID[key], key);  
+    }
+
+    const intSrc = [mainImage, fullImage];
+    var intURL = [null, null];
+    for (var i = 0; i < 2; i++) {
+      const s3 = new AWS.S3.ManagedUpload({
+        params: {
+          Bucket:  "templates-image-bucket",
+          Key: `${uuid() + intSrc[i].lastModified + intSrc[i].name}`,
+          Body: intSrc[i], 
+          ACL: 'public-read'
+        }})
+        try {
+          const promise = await s3.promise();
+          intURL[i] = promise.Location; 
+        }
+        catch(error) {
+          console.log("upload error");
+          console.log(error);
+        }
+    }
+    const TagData = tag ? tag.map((el) => ({"tagName": el})) : {};
+    const categoryData = category ? category : 1;
+    NIdata = NIdata.map((el) => ({x: el.x, y: el.y, src: el.src, width: el.width, height: el.height, zindex: el.zindex, borderstyle: el.borderstyle, bordersize: el.bordersize, bordercolor: el.bordercolor, opacity: el.opacity, radius: el.radius, blur: el.blur, brightness : el.brightness, contrast: el.contrast, grayscale: el.grayscale, hue: el.hue, invert:el.invert, saturate: el.saturate, sepia: el.sepia}))    
+    console.log({"images": NIdata, "texts": NTdata, "tags": TagData, "categoryId" : categoryData, "fullImageSrc" : intURL[1], "mainImageSrc": intURL[0], "templateName": title});
   }
 
   return (
@@ -343,7 +351,9 @@ function Preview(props) {
               <Button sx={{ color: "white" }}>편집하기</Button>
             </Link>
             <Box sx={{ flexGrow: 1 }} />
-            <Button sx={{ color: "white" }} onClick={uploadData}>저장하기</Button>
+            <Link to="/select">
+              <Button sx={{ color: "white" }} onClick={uploadData}>저장하기</Button>
+            </Link> 
           </Toolbar>
         </AppBar>
       </ThemeProvider>

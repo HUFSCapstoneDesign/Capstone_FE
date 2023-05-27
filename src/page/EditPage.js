@@ -25,8 +25,8 @@ export default function EditPage() {
 
     const [zoomRatio, setZoomRatio] = useState(1);
     const [zoomView, setZoomView] = useState(false);
-    const [ClickedID, SetClickedID] = useState("");
-    const [ClickedType, SetClickedType] = useState("");
+    const [ClickedID, SetClickedID] = useState("un1");
+    const [ClickedType, SetClickedType] = useState("Board");
     const [backColorBol, SetBackColorBol] = useState(true);
     const newImageID = useRef({});
     const inputRef = useRef();

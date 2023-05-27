@@ -37,7 +37,6 @@ export default function TextView({Tdata, SetTData, Idata, SetIData, ClickedID, S
     }
 
     function ChangeCID(e) {
-        e.stopPropagation() 
 
         if (ClickedType === "Text" && newChangeID !== ClickedID) {
             const data = Tdata.find((el)=> el.id === ClickedID)

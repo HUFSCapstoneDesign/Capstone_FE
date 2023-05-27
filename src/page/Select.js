@@ -1,12 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Info from "../components/SelectComponents/Info";
 import "../styles/Select.css";
+import axios from "axios";
 
 //더미mainimage
 import mainimage from "../images/main.jpg";
+
+
 
 //검색창
 function Search(props) {
@@ -105,7 +108,7 @@ function TempleteList(props) {
         <Info id={selectid} closeInfo={() => setInfoOpen(!InfoOpen)}></Info>
       )}
     </section>
-  );
+ );
 }
 
 function Select() {
@@ -119,8 +122,13 @@ function Select() {
       mainImageSrc: mainimage,
     });
   }
-  //템플릿의 id, templateName, categoryName, mainImageSrc 필요
 
+  const getData = async() => {
+    console.log(await axios.get("http://192.168.123.20:8000/templates"));
+  }
+  //getData();
+  
+  //템플릿의 id, templateName, categoryName, mainImageSrc 필요
   return (
     <div className="templeteContainer">
       <Search data={data}></Search>
