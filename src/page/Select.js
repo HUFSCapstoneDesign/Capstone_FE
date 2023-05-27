@@ -26,7 +26,7 @@ function Search(props) {
 
   let searched = props.data;
   if (check === 1) {
-    searched = props.data.filter((item) => item.title.includes(userInput));
+    searched = props.data.filter((item) => item.templateName.includes(userInput));
   } else if (check === 2) {
     searched = props.data.filter((item) => item.categoryName.includes(userSelect));
   }
