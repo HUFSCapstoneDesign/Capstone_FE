@@ -37,6 +37,7 @@ export default function TextView({Tdata, SetTData, Idata, SetIData, ClickedID, S
     }
 
     function ChangeCID(e) {
+        e.stopPropagation() 
 
         if (ClickedType === "Text" && newChangeID !== ClickedID) {
             const data = Tdata.find((el)=> el.id === ClickedID)
@@ -60,7 +61,7 @@ export default function TextView({Tdata, SetTData, Idata, SetIData, ClickedID, S
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
             context.font = `${CurrentData.size + 3}px ${CurrentData.font}`;
-            const width = context.measureText("글씨를 입력해주세요").width
+            const width = context.measureText("텍스트를 입력해주세요").width
             const height = (CurrentData.size + 12)
             SetTData(Tdata.map((el) => el.id === e.target.id ? {...el, content: "", flag: false, width: width, height: height} : el))
         }
@@ -75,7 +76,7 @@ export default function TextView({Tdata, SetTData, Idata, SetIData, ClickedID, S
                 className="Text"
                 key={el.id}
                 position={{x: parseInt(el.x * zoomRatio), y: parseInt(el.y*zoomRatio)}}
-                style={{position: "absolute", zIndex: el.zindex, transform: `scale(${zoomRatio})`, transformOrigin: 'top left'}}
+                style={{position: "absolute", zIndex: el.zindex, transform: `scale(${zoomRatio})`}}
                 bounds="parent"
                 size = {{width: parseInt(el.width*zoomRatio), height: parseInt(el.height*zoomRatio)}}
                 onDrag = {()=> setIsMoving(true)}

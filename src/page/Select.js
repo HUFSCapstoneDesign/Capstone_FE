@@ -112,6 +112,38 @@ function TempleteList(props) {
 }
 
 function Select() {
+
+  useEffect(() => {
+    async function data() {
+      const d = await axios.get("http://172.30.1.50:8000/templates")
+      console.log(d.data);
+    }
+    data();
+    /*d. data
+    
+    [
+      [
+        {category: {name: '템플릿 카테고리 01'}, 
+        id: 3,
+        introduce: {main_image_src: 'main_image_src', full_image_src: 'full_image_src'},
+        name: "name"}
+      ], 
+      [
+        {category: {name: '템플릿 카테고리 02'}, 
+        id: 2,
+        introduce: {main_image_src: 'main_image_src', full_image_src: 'full_image_src'},
+        name: "템플릿 02"}
+      ],
+      [
+        {category: {name: '템플릿 카테고리 01'}, 
+        id: 1,
+        introduce: {main_image_src: 'main_image_src', full_image_src: 'full_image_src'},
+        name: "템플릿 01"}
+      ]
+    ]
+    
+    */
+  }, [])
   //더미데이터
   const data = [];
   for (let i = 1; i < 10; i++) {
@@ -122,11 +154,6 @@ function Select() {
       mainImageSrc: mainimage,
     });
   }
-
-  const getData = async() => {
-    console.log(await axios.get("http://192.168.123.20:8000/templates"));
-  }
-  //getData();
   
   //템플릿의 id, templateName, categoryName, mainImageSrc 필요
   return (

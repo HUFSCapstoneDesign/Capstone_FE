@@ -8,6 +8,7 @@ export default function ImageView({Idata, SetIData, ClickedID, SetClickedID, Cli
     const [endPos, setEndPos] = useState({ x: 0, y: 0 });
 
     const ChangeCID = (e) => {
+        e.stopPropagation() 
 
         if (ClickedType === "Text") {
             const data = Tdata.find((el) => el.id === ClickedID);          
