@@ -27,11 +27,13 @@ function Search(props) {
     setcheck(1);
   };
 
-  let searched = props.data;
+  let searched = props.data[0];
   if (check === 1) {
-    searched = props.data.filter((item) => item.templateName.includes(userInput));
+    searched = props.data[0].filter((item) => item.name.includes(userInput));
   } else if (check === 2) {
-    searched = props.data.filter((item) => item.categoryName.includes(userSelect));
+    searched = props.data[0].filter((item) =>
+      item.category.name.includes(userSelect)
+    );
   }
 
   const lis = [];
@@ -42,14 +44,14 @@ function Search(props) {
     slidesToScroll: 1,
   };
 
-  for (let i = 0; i < props.data.length; i++) {
-    let temp = props.data[i];
+  for (let i = 0; i < props.data[1].length; i++) {
+    let temp = props.data[1][i];
     lis.push(
       <input
         className="category"
         type="button"
-        value={temp.categoryName}
-        key={temp.id}
+        value={temp.name}
+        key=""
         onClick={getCate}
       ></input>
     );
@@ -78,17 +80,21 @@ function TempleteList(props) {
     let temp = props.data[i];
     lis.push(
       <li
-        key={i}
+        key={temp.id}
         className="templete"
         onClick={() => {
           getId(temp.id);
           setInfoOpen(!InfoOpen);
         }}
       >
-        <img className="mainImage" src={temp.mainImageSrc} alt=""></img>
+        <img
+          className="mainImage"
+          src={temp.introduce.main_image_src}
+          alt=""
+        ></img>
         <div className="templeteInfo">
-          <span className="templeteCate">{temp.categoryName}</span>
-          <span className="templeteTitle">{temp.templateName}</span>
+          <span className="templeteCate">{temp.category.name}</span>
+          <span className="templeteTitle">{temp.name}</span>
         </div>
       </li>
     );
@@ -101,61 +107,42 @@ function TempleteList(props) {
 
   //탬플릿 클릭하면 Info(팝업창) 생성
   return (
-    
     <section>
       <ol className="templete_area">{lis}</ol>
       {InfoOpen && (
         <Info id={selectid} closeInfo={() => setInfoOpen(!InfoOpen)}></Info>
       )}
     </section>
- );
+  );
 }
 
 function Select() {
+  const temp = [
+    [{ id: 0, name: "템플릿", introduce: { main_image_src: mainimage,}, category: { name: "카테고리" } }],
+    [{name: "카테고리"},]];
 
+  const [data, setData] = useState(temp);
   useEffect(() => {
     async function data() {
-      const d = await axios.get("http://172.30.1.50:8000/templates")
+      const d = await axios.get("http://172.30.1.50:8000/templates");
+      // const d = await axios.get("http://127.0.0.1:8000/templates");
+      setData(d.data);
       console.log(d.data);
     }
     data();
-    /*d. data
-    
-    [
-      [
-        {category: {name: '템플릿 카테고리 01'}, 
-        id: 3,
-        introduce: {main_image_src: 'main_image_src', full_image_src: 'full_image_src'},
-        name: "name"}
-      ], 
-      [
-        {category: {name: '템플릿 카테고리 02'}, 
-        id: 2,
-        introduce: {main_image_src: 'main_image_src', full_image_src: 'full_image_src'},
-        name: "템플릿 02"}
-      ],
-      [
-        {category: {name: '템플릿 카테고리 01'}, 
-        id: 1,
-        introduce: {main_image_src: 'main_image_src', full_image_src: 'full_image_src'},
-        name: "템플릿 01"}
-      ]
-    ]
-    
-    */
-  }, [])
-  //더미데이터
-  const data = [];
+  }, []);
+
+  const sample = [];
   for (let i = 1; i < 10; i++) {
-    data.push({
+    sample.push({
       id: i,
-      templateName: "템플릿Title" + i,
-      categoryName: "카테고리" + i,
-      mainImageSrc: mainimage,
+      category: { name: "카테고리" + i },
+      name: "템플릿Title" + i,
+      introduce: { main_image_src: mainimage },
     });
   }
-  
-  //템플릿의 id, templateName, categoryName, mainImageSrc 필요
+
+
   return (
     <div className="templeteContainer">
       <Search data={data}></Search>

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, Outlet } from "react-router-dom";
 import "../../styles/Info.css";
 import axios from "axios";
@@ -8,57 +8,32 @@ import timage from "../../images/testing.png";
 
 function TempleteTag(props) {
   const lis = [];
-  for (let i = 0; i < props.sample.length; i++) {
-    let temp = props.sample[i];
-    lis.push(<li className="tag" key = {i}># {temp.tagName}</li>);
+  for (let i = 0; i < props.tagList.length; i++) {
+    let temp = props.tagList[i];
+    lis.push(<li className="tag" key = {i}># {temp.tag_name}</li>);
   }
   return <ol className="tagList">{lis}</ol>;
 }
 
 function Info(props) {
-  // props.id = 팝업창에 띄울 템플릿의 id
-  // id에 해당하는 fullImageSrc, tag, templateName 불러오기
+  const sample = [
+    { category: { name: '' }, id: 1, introduce: { full_image_src: timage }, name: "템플릿 이름",},
+    [{tag_name: "템플릿 태그"},]];
+  const [infomation, setInfomation] = useState(sample);
 
-  //더미데이터
-
-  /* 
-  [
-    {
-      category: {name: '템플릿 카테고리 01'},
-      id: 1,
-      introduce: {full_image_src: "full_image_src", main_image_src: "main_image_src"}
-      name: "템플릿 01"
-    },
-    [
-      {tag_name: "템플릿 태그 01"},
-      {tag_name: "템플릿 태그 02"},
-      {tag_name: "템플릿 태그 03"}
-    ]
-  ]
-  
-  */
   useEffect(() => {
-    const id = 1; //일단 1번 아이디 설정 => link에 id 전달해야함
     async function data(id) {
-      const d = await axios.get(`http://172.30.1.50:8000/templates/${id}/explain`);
-      console.log(d.data);
+      const d = await axios.get(`http://172.30.1.50:8000/templates/${id}/explain`);      
+      // const d = await axios.get(`http://127.0.0.1:8000/templates/${id}/explain`);
+      setInfomation(d.data);
     }
-    data(1);
-  }, [])
-  const taglist = [
-    { tagName: "This" },
-    { tagName: "is" },
-    { tagName: "sample" },
-    { tagName: "tag" },
-    { tagName: "sampletag" },
-  ];
-  const templateName = "템플릿 이름";
-  const fullImageSrc = timage;
+    data(props.id);
+  }, []);
 
-  const onClickButton = async(id) => {
+  const onClickButton = async (id) => {
     const Ed = await axios.get(`http://172.30.1.50:8000/templates/${id}/edit`);
     console.log(Ed.data);
-  }
+  };
 
   function closeInfo() {
     props.closeInfo();
@@ -94,11 +69,11 @@ function Info(props) {
 
         <div className="introduce">
           <div className="imgScrollBox">
-            <img src={fullImageSrc} alt=""></img>
+            <img src={infomation[0].introduce.full_image_src} alt=""></img>
           </div>
           <div className="description">
-            <div className="templeteName">{templateName}</div>
-            <TempleteTag sample={taglist}></TempleteTag>
+            <div className="templeteName">{infomation[0].name}</div>
+            <TempleteTag tagList={infomation[1]}></TempleteTag>
             <Link to="/edit"/*+[templete id] */ state={{Tdata: Tdata, Idata: Idata, id: id, temWidth: temWidth, temHeight: temHeight, pageFlag: true, updatedID: {}}}>
               <button id="startEditBtn" onClick={() => onClickButton(1)}>편집하기</button>
             </Link>
