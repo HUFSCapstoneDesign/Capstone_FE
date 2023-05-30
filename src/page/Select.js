@@ -124,10 +124,8 @@ function Select() {
   const [data, setData] = useState(temp);
   useEffect(() => {
     async function data() {
-      const d = await axios.get("http://172.30.1.50:8000/templates");
-      // const d = await axios.get("http://127.0.0.1:8000/templates");
+      const d = await axios.get("http://127.0.0.1:8000/templates");
       setData(d.data);
-      console.log(d.data);
     }
     data();
   }, []);
