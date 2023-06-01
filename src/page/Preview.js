@@ -208,6 +208,10 @@ function Preview(props) {
   const [imageLink, setImageLink] = useState(null);
   const [mainImage, setMainImage] = useState(null);
   const [fullImage, setFullImage] = useState(null);
+  const location = useLocation();
+
+  console.log(location.state.Tdata);
+  console.log(location.state.Idata);
   
 
   useEffect(() => {
@@ -250,7 +254,6 @@ function Preview(props) {
     { id: 1, name: "패션" },
     { id: 2, name: "test2" },
   ];
-  const location = useLocation();
 
   const darkTheme = createTheme({
     palette: {

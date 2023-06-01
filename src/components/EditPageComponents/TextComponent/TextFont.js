@@ -52,7 +52,8 @@ export default function TextFont(props) {
     }
     
     const ChangeFont = (e) => {
-        props.SetTData(props.Tdata.map((el) => (el.id === props.ClickedID) ? {...el, font: e.target.value} : el));      
+        props.SetTData(props.Tdata.map((el) => (el.id === props.ClickedID) ? {...el, font: e.target.value} : el));
+        props.setChangeFlag(!props.changeFlag);      
     }
 
     const ChangeSize = (e)=> {
@@ -96,6 +97,10 @@ export default function TextFont(props) {
                         <MenuItem value={"'Nanum Pen Script', cursive"} style={{fontFamily:"'Nanum Pen Script', cursive"}}>Nanum Pen</MenuItem>
                         <MenuItem value={"'Single Day', cursive"} style={{fontFamily:"'Single Day', cursive"}}>Single Day</MenuItem>
                         <MenuItem value={"'Hi Melody', cursive"} style={{fontFamily:"'Hi Melody', cursive"}}>Hi Melody</MenuItem>
+                        <MenuItem value={"'Geologica', sans-serif"} style={{fontFamily:"'Geologica', sans-serif"}}>Geologica</MenuItem>
+                        <MenuItem value={"'Pacifico', cursive"} style={{fontFamily:"'Pacifico', cursive"}}>Pacifico</MenuItem>
+                        <MenuItem value={"'Architects Daughter', cursive"} style={{fontFamily:"'Architects Daughter', cursive"}}>Architects Daughter</MenuItem>
+                        <MenuItem value={"'Sacramento', cursive"} style={{fontFamily:"'Sacramento', cursive"}}>Sacramento</MenuItem>
                     </Select>
                 </FormControl>
                 <TextField type="number" label="Size" variant="outlined" size="small" sx={{width:"40px"}} style={{width:"80px", marginLeft:"15px"}} onChange={ChangeSize} value={props.CurrentData ? props.CurrentData.size : ""}/>          
