@@ -35,6 +35,7 @@ function AddInfo(props) {
 
   const categoryChange = (e) => {
     props.setCategory(e.target.value);
+    console.log(e.target.value);
   };
 
   const ImageSave = () => {
@@ -56,8 +57,8 @@ function AddInfo(props) {
       ></textarea>
       <span className="name">| 카테고리</span>
       <select className="category" onChange={categoryChange}>
-        {props.sample.map((item, idx) => (
-          <option value={item.value ? item.value : ""} key={idx}>
+        {props.categoryData.map((item, idx) => (
+          <option value={item.name ? item.name : ""} key={idx}>
             {item.name}
           </option>
         ))}
@@ -248,11 +249,6 @@ function Preview(props) {
     });
   }, [])
 
-  const sampleCategory = [
-    { id: 1, name: "패션" },
-    { id: 2, name: "test2" },
-  ];
-
   const darkTheme = createTheme({
     palette: {
       mode: "dark",
@@ -328,9 +324,9 @@ function Preview(props) {
         }
     }
     const TagData = tag ? tag.map((el) => ({"tagName": el})) : {};
-    const categoryData = category ? category : 1;
+    const categoryData = category ? category : location.state.categoryData[0].name;
     NIdata = NIdata.map((el) => ({x: el.x, y: el.y, src: el.src, width: el.width, height: el.height, zindex: el.zindex, borderstyle: el.borderstyle, bordersize: el.bordersize, bordercolor: el.bordercolor, opacity: el.opacity, radius: el.radius, blur: el.blur, brightness : el.brightness, contrast: el.contrast, grayscale: el.grayscale, hue: el.hue, invert:el.invert, saturate: el.saturate, sepia: el.sepia}))    
-    console.log({"images": NIdata, "texts": NTdata, "tags": TagData, "categoryId" : categoryData, "fullImageSrc" : intURL[1], "mainImageSrc": intURL[0], "templateName": title});
+    console.log({"images": NIdata, "texts": NTdata, "tags": TagData, "category" : categoryData, "fullImageSrc" : intURL[1], "mainImageSrc": intURL[0], "templateName": title});
   }
 
   return (
@@ -347,6 +343,7 @@ function Preview(props) {
                 temWidth: location.state.temWidth,
                 pageFlag: false,
                 updatedID: location.state.updatedID,
+                categoryData: location.state.categoryData
               }}
             >
               <Button sx={{ color: "white" }}>편집하기</Button>
@@ -360,11 +357,11 @@ function Preview(props) {
       </ThemeProvider>
       <div className="preview">
         <AddInfo
-          sample={sampleCategory}
           setTitle={setTitle}
           setCategory={setCategory}
           setTag={setTag}
           imageLink = {imageLink}
+          categoryData = {location.state.categoryData}
         ></AddInfo>
         <DisplayMain ref={widthRef} id="display">
           <Template

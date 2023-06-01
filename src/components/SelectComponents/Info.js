@@ -35,7 +35,7 @@ function Info(props) {
     if(Ed.data) {
       const Tdata = Ed.data[2].map((el, i) => ({id: `${i + 1}`, x: el.x, y: el.y, content: el.content, size: el.size, font: String(el.font), bold: el.bold, italic: el.italic, underlined: el.underlined, align: el.align, textcolor: el.textcolor, textopa: el.textopa, backcolor: el.backcolor, backopa: el.backopa, zindex: el.zindex}))
       const Idata = Ed.data[0].map((el, i) => ({id: `${i + 1}`, x: el.x, y: el.y, src: el.src, width: el.width, height: el.height, zindex: el.zindex, borderstyle: el.borderstyle, bordersize: el.bordersize, bordercolor: el.bordercolor, opacity: el.opacity, radius: el.radius, blur: el.blur, brightness : el.brightness, contrast: el.contrast, grayscale: el.grayscale, hue: el.hue, invert:el.invert, saturate: el.saturate, sepia: el.sepia}))
-      navigate('/edit', {state: {Tdata: Tdata, Idata: Idata, temWidth: Ed.data[1].width, temHeight: Ed.data[1].height, pageFlag: true, updatedID: {}}})
+      navigate('/edit', {state: {Tdata: Tdata, Idata: Idata, temWidth: Ed.data[1].width, temHeight: Ed.data[1].height, pageFlag: true, updatedID: {}, categoryData: props.categoryData}})
     }
   };
 

@@ -66,7 +66,7 @@ function Search(props) {
         ></input>
       </div>
       <Slider {...settings}>{lis}</Slider>
-      <TempleteList data={searched}></TempleteList>
+      <TempleteList data={searched} categoryData = {props.categoryData}></TempleteList>
     </div>
   );
 }
@@ -110,7 +110,7 @@ function TempleteList(props) {
     <section>
       <ol className="templete_area">{lis}</ol>
       {InfoOpen && (
-        <Info id={selectid} closeInfo={() => setInfoOpen(!InfoOpen)}></Info>
+        <Info id={selectid} closeInfo={() => setInfoOpen(!InfoOpen)} categoryData = {props.categoryData}></Info>
       )}
     </section>
   );
@@ -143,7 +143,7 @@ function Select() {
 
   return (
     <div className="templeteContainer">
-      <Search data={data}></Search>
+      <Search data={data} categoryData = {data[1]}></Search>
     </div>
   );
 }

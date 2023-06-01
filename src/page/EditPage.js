@@ -214,7 +214,7 @@ export default function EditPage() {
                             </IconButton>
                             {zoomView && <Slider onChange={handleZoom} min={50} max={300} sx={{width: "150px", color:"white"}} value={zoomRatio*100}></Slider>}
                             <Box sx={{ flexGrow: 1 }} />
-                            <Link to="/preview" state = {{Tdata: Tdata, Idata: Idata, temHeight: temHeight, temWidth: temWidth, updatedID: updatedID}}>           
+                            <Link to="/preview" state = {{Tdata: Tdata, Idata: Idata, temHeight: temHeight, temWidth: temWidth, updatedID: updatedID, categoryData: location.state.categoryData}}>           
                                 <Button sx={{color: "white"}}>미리보기</Button>
                             </Link>
                         </Toolbar>
