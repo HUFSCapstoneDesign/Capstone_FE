@@ -122,7 +122,7 @@ export default function EditPage() {
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
         context.font = `23px 'Nanum Pen Script', cursive`;
-        const width = context.measureText("글자를 입력해주세요").width
+        const width = context.measureText("텍스트를 입력해주세요").width
         const height =  32;
         SetTData([{id: String(TID.current), x: (temWidth - width)/2, y: scrollH + (widthRef.current.offsetHeight - height)/2, content: "", size: 20, font: "'Nanum Pen Script', cursive", bold: false, italic: false, underlined: false, align: "left", textcolor: "000000000", textopa: 1, backcolor: "255255255", backopa: 0, zindex: IID.current + TID.current, rotation: 0, width: width, height: height, flag: false}, ...Tdata]);
         SetClickedID(String(TID.current));    

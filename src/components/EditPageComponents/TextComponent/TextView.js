@@ -13,12 +13,12 @@ export default function TextView({Tdata, SetTData, Idata, SetIData, ClickedID, S
             const target = document.getElementById(ClickedID);
             target.style.width = "0";
             target.style.height = "0";
-            const width = target.scrollWidth;
-            const height = target.scrollHeight;
+            const width = parseInt(target.scrollWidth);
+            const height = parseInt(target.scrollHeight);
             const data = Tdata.find((el) => el.id === ClickedID);
-            const pointX = (width/zoomRatio + data.x + 5 > temWidth) ? data.x - (width/zoomRatio + data.x + 5 - temWidth) : data.x;
+            const pointX = (width/zoomRatio + data.x > temWidth) ? data.x - (width/zoomRatio + data.x - temWidth) : data.x;
             const pointY = (height/zoomRatio + data.y > temHeight) ? data.y - (width/zoomRatio + data.x - temHeight) : data.y;
-            SetTData(Tdata.map((el) => el.id === ClickedID ? {...el, width: parseInt(width / zoomRatio + 5), height: parseInt(height / zoomRatio), x: pointX, y: pointY} : el));
+            SetTData(Tdata.map((el) => el.id === ClickedID ? {...el, width: parseInt(width / zoomRatio), height: parseInt(height / zoomRatio), x: pointX, y: pointY} : el));
             target.style.width = "100%";
             target.style.height = "100%";
         }
@@ -60,7 +60,7 @@ export default function TextView({Tdata, SetTData, Idata, SetIData, ClickedID, S
         if(CurrentData && CurrentData.flag && !isMoving) {
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
-            context.font = `${CurrentData.size + 3}px ${CurrentData.font}`;
+            context.font = `${CurrentData.size}px ${CurrentData.font}`;
             const width = context.measureText("텍스트를 입력해주세요").width
             const height = (CurrentData.size + 12)
             SetTData(Tdata.map((el) => el.id === e.target.id ? {...el, content: "", flag: false, width: width, height: height} : el))

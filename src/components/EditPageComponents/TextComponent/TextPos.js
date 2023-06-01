@@ -7,13 +7,13 @@ export default function TextPos(props) {
 
     const ChangeX = (e) => {
         const width = props.CurrentData.width;
-        const value = (props.temWidth < width + Number(e.target.value)) ? parseInt(props.temWidth - width) : Number(e.target.value);
+        const value = e.target.value < 0 ? 0 : (props.temWidth < width + Number(e.target.value)) ? parseInt(props.temWidth - width) : Number(e.target.value);
         props.SetTData(props.Tdata.map((el) => el.id === props.ClickedID ? {...el, x: value} : el));
     }
 
     const ChangeY = (e) => {
         const height = props.CurrentData.height;
-        const value = props.temHeight < height + Number(e.target.value) ? props.temHeight - height : Number(e.target.value) ;
+        const value = e.target.value < 0 ? 0 : props.temHeight < height + Number(e.target.value) ? props.temHeight - height : Number(e.target.value);
         props.SetTData(props.Tdata.map((el) => el.id === props.ClickedID ? {...el, y: value} : el));
     }
 

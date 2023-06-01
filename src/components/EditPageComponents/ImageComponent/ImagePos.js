@@ -7,13 +7,13 @@ export default function ImagePos(props) {
     //temHeight = {temHeight} temWidth = {temWidth}
     const ChangeX = (e) => {
         const width = props.CurrentData.width;
-        const value = (props.temWidth < width + Number(e.target.value)) ? props.temWidth - width : Number(e.target.value);
+        const value = e.target.value < 0 ? 0 : (props.temWidth < width + Number(e.target.value)) ? props.temWidth - width : Number(e.target.value);
         props.SetIData(props.Idata.map((el) => el.id === props.ClickedID ? {...el, x: value} : el));
     }
 
     const ChangeY = (e) => {
         const height = props.CurrentData.height;
-        const value = props.temHeight < height + Number(e.target.value) ? props.temHeight - height : Number(e.target.value) ;
+        const value = e.target.value < 0 ? 0 : props.temHeight < height + Number(e.target.value) ? props.temHeight - height : Number(e.target.value) ;
         props.SetIData(props.Idata.map((el) => el.id === props.ClickedID ? {...el, y: value} : el));
     }
 
@@ -21,7 +21,7 @@ export default function ImagePos(props) {
         const {x, width} = props.CurrentData;
         if(props.temWidth < x + Number(e.target.value)) {
             const posX = x - (Number(e.target.value) - width);
-            props.SetIData(props.Idata.map((el) => el.id === props.ClickedID ? {...el, x: posX, width : Number(e.target.value)} : el));
+            posX >= 0 && props.SetIData(props.Idata.map((el) => el.id === props.ClickedID ? {...el, x: posX, width : Number(e.target.value)} : el));
         }
         else {
             props.SetIData(props.Idata.map((el) => el.id === props.ClickedID ? {...el, width : Number(e.target.value)} : el));
@@ -32,7 +32,7 @@ export default function ImagePos(props) {
         const {y, height} = props.CurrentData;
         if(props.temHeight < y + Number(e.target.value)) {
             const posY = y - (Number(e.target.value) - height);
-            props.SetIData(props.Idata.map((el) => el.id === props.ClickedID ? {...el, y: posY, height : Number(e.target.value)} : el));
+            posY >= 0 && props.SetIData(props.Idata.map((el) => el.id === props.ClickedID ? {...el, y: posY, height : Number(e.target.value)} : el));
         }
         else {
             props.SetIData(props.Idata.map((el) => el.id === props.ClickedID ? {...el, height: Number(e.target.value)} : el));

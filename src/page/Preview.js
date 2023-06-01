@@ -164,10 +164,10 @@ function Result({ Idata, Tdata }) {
                 resize: "none",
                 outline: "none",
                 whiteSpace: "pre",
-                paddingLeft: el.align === "left" ? "2px" : el.align === "right" ? "10px" : "10px",
-                paddingRight: el.align === "left" ? "10px" : el.align === "right" ? "2px" : "10px",
+                paddingLeft: el.align === "left" ? "2px" : el.align === "right" ? "5px" : "5px",
+                paddingRight: el.align === "left" ? "5px" : el.align === "right" ? "2px" : "5px",
                 paddingTop: "3px",
-                paddingBottom:"3px"
+                paddingBottom: "7px"
               }}
             >
               {el.content}
