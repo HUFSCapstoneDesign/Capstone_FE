@@ -209,9 +209,6 @@ function Preview(props) {
   const [mainImage, setMainImage] = useState(null);
   const [fullImage, setFullImage] = useState(null);
   const location = useLocation();
-
-  console.log(location.state.Tdata);
-  console.log(location.state.Idata);
   
 
   useEffect(() => {
