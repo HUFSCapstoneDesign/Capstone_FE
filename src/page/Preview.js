@@ -177,7 +177,8 @@ function Result({ Idata, Tdata }) {
       {Idata.map((el) => (
         <img
           key={`${"2"+el.id}`}
-          src={el.src}
+          crossOrigin="anonymous"
+          src={el.src + '?' + new Date().getTime()}
           alt={"이미지"}
           style={{
             position: "absolute",
@@ -224,7 +225,7 @@ function Preview(props) {
   }, []);
 
   useEffect(() => {
-    html2canvas(document.getElementById("view")).then((canvas) => {
+    html2canvas(document.getElementById("view"), {useCORS: true, allowTaint: true}).then((canvas) => {
       const link = document.createElement("a");
       link.download = "image";
       link.href = canvas.toDataURL("image/jpeg");
