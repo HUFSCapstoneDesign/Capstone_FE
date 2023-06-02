@@ -5,6 +5,8 @@ import { MainPage } from "../styles/emotion";
 import AWS from 'aws-sdk';
 import uuid from 'react-uuid';
 import axios from 'axios'
+import imageCompression from "browser-image-compression";
+
 import {
   createTheme,
   ThemeProvider,
@@ -35,7 +37,6 @@ function AddInfo(props) {
 
   const categoryChange = (e) => {
     props.setCategory(e.target.value);
-    console.log(e.target.value);
   };
 
   const ImageSave = () => {
@@ -179,7 +180,7 @@ function Result({ Idata, Tdata }) {
         <img
           key={`${"2"+el.id}`}
           crossOrigin="anonymous"
-          src={el.src + '?' + new Date().getTime()}
+          src={el.src.startsWith("http") ? el.src + '?' + new Date().getTime() : el.src}
           alt={"이미지"}
           style={{
             position: "absolute",
@@ -262,18 +263,28 @@ function Preview(props) {
     const Tdata = location.state.Tdata;
     const Idata =  location.state.Idata;
     const updatedID = location.state.updatedID;
+    const option = {
+      maxSizeMB: 0.2,
+      maxWidthOrHeight: 1000,
+      useWebWorker: true,
+    }
 
     let NTdata = Tdata.map((el) => ({x: el.x, y: el.y, content: el.content, size: el.size, font: el.font, bold: el.bold, italic: el.italic, underlined: el.underlined, align: el.align, textcolor: el.textcolor, textopa: el.textopa, backcolor: el.backcolor, backopa: el.backopa, zindex: el.zindex}));
     let NIdata = Idata.map((el) => ({id: el.id, x: el.x, y: el.y, src: el.src, width: el.width, height: el.height, zindex: el.zindex, borderstyle: el.borderstyle, bordersize: el.bordersize, bordercolor: el.bordercolor, opacity: el.opacity, radius: el.radius, blur: el.blur, brightness : el.brightness, contrast: el.contrast, grayscale: el.grayscale, hue: el.hue, invert:el.invert, saturate: el.saturate, sepia: el.sepia}))
-    /*
-    axios 데이터 전송
-    await axios.post("url", {"images": Idata, "texts": Tdata, "tags": TagData, "categoryId" : category, "fullImageSrc" : fullImage, "mainImageSrc": mainImage, "templateName": title}).then(function(response) {
-      console.log("데이터 전송 완료")
-    }).catch(function(error)) {
-      console.log("axios.post 오류 발생")
-    }
-    */
-
+    let TIdata = [];
+    NIdata.forEach(function(el) {
+      let flag = true;
+      for(var key in updatedID) {
+        if(el.id === key) {
+          flag = false;
+          break;
+        }
+      }
+      if(flag) {
+        TIdata.push(el);
+      }
+    })
+    console.log(NIdata);
     AWS.config.update({
       region: "",
       accessKeyId: "",
@@ -281,18 +292,19 @@ function Preview(props) {
     })
 
     const upload = async(file, id) => {
-      const s3 = new AWS.S3.ManagedUpload({
-      params: {
-        Bucket:  "templates-image-bucket",
-        Key: `${uuid() + file.lastModified + file.name}`,
-        Body: file, 
-        ACL: 'public-read'
-      }})
       try {
+        const compressedFile = await imageCompression(file, option);
+        const s3 = new AWS.S3.ManagedUpload({
+          params: {
+            Bucket:  "templates-image-bucket",
+            Key: `${uuid() + file.lastModified + file.name}`,
+            Body: compressedFile, 
+            ACL: 'public-read'
+          }})
         const promise = await s3.promise();
-        NIdata = NIdata.map((el) => el.id === id ? {...el, src: promise.Location} : el);
-
-        //Idata에 id해당되는 부분 src쪽 내용 수정
+        let data = NIdata.find((el) => el.id === id);
+        data.src = promise.Location;
+        TIdata.push(data);
       }
       catch(error) {
         console.log("upload error");
@@ -301,33 +313,46 @@ function Preview(props) {
     }
 
     for(var key in updatedID) {
-      upload(updatedID[key], key);  
+      upload(updatedID[key], key);
+      console.log(key);
     }
 
     const intSrc = [mainImage, fullImage];
+    console.log(mainImage, fullImage);
+    
     var intURL = [null, null];
     for (var i = 0; i < 2; i++) {
-      const s3 = new AWS.S3.ManagedUpload({
+      try{
+        const compressedFile = await imageCompression(intSrc[i], option);
+        const s3 = new AWS.S3.ManagedUpload({
         params: {
           Bucket:  "templates-image-bucket",
           Key: `${uuid() + intSrc[i].lastModified + intSrc[i].name}`,
-          Body: intSrc[i], 
+          Body: compressedFile, 
           ACL: 'public-read'
         }})
-        try {
-          const promise = await s3.promise();
-          intURL[i] = promise.Location; 
-        }
-        catch(error) {
-          console.log("upload error");
-          console.log(error);
-        }
+        const promise = await s3.promise();
+        intURL[i] = promise.Location; 
+      }
+      catch(error) {
+        console.log("upload error");
+        console.log(error);
+      }      
     }
     const TagData = tag ? tag.map((el) => ({"tagName": el})) : {};
     const categoryData = category ? category : location.state.categoryData[0].name;
-    NIdata = NIdata.map((el) => ({x: el.x, y: el.y, src: el.src, width: el.width, height: el.height, zindex: el.zindex, borderstyle: el.borderstyle, bordersize: el.bordersize, bordercolor: el.bordercolor, opacity: el.opacity, radius: el.radius, blur: el.blur, brightness : el.brightness, contrast: el.contrast, grayscale: el.grayscale, hue: el.hue, invert:el.invert, saturate: el.saturate, sepia: el.sepia}))    
-    console.log({"images": NIdata, "texts": NTdata, "tags": TagData, "category" : categoryData, "fullImageSrc" : intURL[1], "mainImageSrc": intURL[0], "templateName": title});
+    TIdata = TIdata.map((el) => ({x: el.x, y: el.y, src: el.src, width: el.width, height: el.height, zindex: el.zindex, borderstyle: el.borderstyle, bordersize: el.bordersize, bordercolor: el.bordercolor, opacity: el.opacity, radius: el.radius, blur: el.blur, brightness : el.brightness, contrast: el.contrast, grayscale: el.grayscale, hue: el.hue, invert:el.invert, saturate: el.saturate, sepia: el.sepia}))    
+    console.log({"images": TIdata, "texts": NTdata, "tags": TagData, "category" : categoryData, "fullImageSrc" : intURL[1], "mainImageSrc": intURL[0], "templateName": title});
+     /*
+    axios 데이터 전송
+    await axios.post("url", {"images": TIdata, "texts": NTdata, "tags": TagData, "category" : categoryData, "fullImageSrc" : intURL[1], "mainImageSrc": intURL[0], "templateName": title}).then(function(response) {
+      console.log("데이터 전송 완료")
+    }).catch(function(error)) {
+      console.log("axios.post 오류 발생")
+    }
+    */
   }
+
 
   return (
     <MainPage>
