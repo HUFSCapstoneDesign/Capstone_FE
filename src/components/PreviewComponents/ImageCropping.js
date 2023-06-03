@@ -16,20 +16,23 @@ function ImageCropping(dataURL) {
   canvas.width = size;
   canvas.height = size;
   context.drawImage(image, 0, 0, size, size, 0, 0, size, size);
+  
 
   const croppedDataURL = canvas.toDataURL("image/jpeg");
-
   //dataURL을 s3에 저장하기 위한 파일생성
   function dataURLtoFile(dataURL, fileName) {
-    const arr = dataURL.split(",");
-    const mime = arr[0].match(/:(.*?);/)[1];
-    const bstr = atob(arr[1]);
-    let n = bstr.length;
-    const u8arr = new Uint8Array(n);
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n);
-    }
-    return new File([u8arr], fileName, { type: mime });
+    if(dataURL !== "data:,") {
+      const arr = dataURL.split(",");
+      const mime = arr[0].match(/:(.*?);/)[1];
+      const bstr = atob(arr[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      return new File([u8arr], fileName, { type: mime });
+      }
+    
   }
 
   const fileName = "main.jpg";
