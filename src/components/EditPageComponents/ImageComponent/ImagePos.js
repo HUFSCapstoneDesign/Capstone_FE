@@ -1,42 +1,39 @@
-import React from "react";
-import { Typography, Stack } from "@mui/material";
-import FormControl from '@mui/material/FormControl';
-import OutlinedInput from '@mui/material/OutlinedInput';
+import React, { memo } from "react";
+import { Typography, Stack, FormControl, OutlinedInput } from "@mui/material";
+import { useData } from "../../../store";
 
-export default function ImagePos(props) {
-    //temHeight = {temHeight} temWidth = {temWidth}
+function ImagePos(props) {
+    const {temWidth, temHeight} = useData();
     const ChangeX = (e) => {
-        const width = props.CurrentData.width;
-        const value = e.target.value < 0 ? 0 : (props.temWidth < width + Number(e.target.value)) ? props.temWidth - width : Number(e.target.value);
-        props.SetIData(props.Idata.map((el) => el.id === props.ClickedID ? {...el, x: value} : el));
+        const value = e.target.value < 0 ? 0 : (temWidth < props.width + Number(e.target.value)) ? temWidth - props.width : Number(e.target.value);
+        props.updateImage(props.id, {x: parseInt(value)});
     }
 
     const ChangeY = (e) => {
-        const height = props.CurrentData.height;
-        const value = e.target.value < 0 ? 0 : props.temHeight < height + Number(e.target.value) ? props.temHeight - height : Number(e.target.value) ;
-        props.SetIData(props.Idata.map((el) => el.id === props.ClickedID ? {...el, y: value} : el));
+        const value = e.target.value < 0 ? 0 : temHeight < props.height + Number(e.target.value) ? temHeight - props.height : Number(e.target.value) ;
+        props.updateImage(props.id, {y: parseInt(value)});
     }
 
     const ChangeW = (e) => {
-        const {x, width} = props.CurrentData;
-        if(props.temWidth < x + Number(e.target.value)) {
-            const posX = x - (Number(e.target.value) - width);
-            posX >= 0 && props.SetIData(props.Idata.map((el) => el.id === props.ClickedID ? {...el, x: posX, width : Number(e.target.value)} : el));
+        if(temWidth < props.posX + Number(e.target.value)) {
+            const value = props.posX - Number(e.target.value) + props.width;
+            props.updateImage(props.id, {width: (value > 0 ? parseInt(value) : 0)});
         }
-        else {
-            props.SetIData(props.Idata.map((el) => el.id === props.ClickedID ? {...el, width : Number(e.target.value)} : el));
-        }     
+        else props.updateImage(props.id, {width: parseInt(e.target.value)})
+        
     }
 
-    const ChnageH = (e) => {
-        const {y, height} = props.CurrentData;
-        if(props.temHeight < y + Number(e.target.value)) {
-            const posY = y - (Number(e.target.value) - height);
-            posY >= 0 && props.SetIData(props.Idata.map((el) => el.id === props.ClickedID ? {...el, y: posY, height : Number(e.target.value)} : el));
+    const ChangeH = (e) => {
+        if(temHeight < props.posY + Number(e.target.value)) {
+            const value = props.posY - Number(e.target.value) + props.height;
+            props.updateImage(props.id, {height: (value > 0 ? parseInt(value) : 0)})
         }
-        else {
-            props.SetIData(props.Idata.map((el) => el.id === props.ClickedID ? {...el, height: Number(e.target.value)} : el));
-        }       
+        else props.updateImage(props.id, {height: parseInt(e.target.value)})
+    }
+
+    const ChangeR = (e) => {
+        const value = e.target.value < 0 ? 0 : e.target.value >= 360 ? e.target.value % 360 : e.target.value;
+        props.updateImage(props.id, {rotation: parseInt(value)});
     }
 
     return(
@@ -51,7 +48,7 @@ export default function ImagePos(props) {
                         aria-describedby="outlined-weight-helper-text"
                         style={{height:"30px"}}
                         onChange = {ChangeX}
-                        value={props.CurrentData ? props.CurrentData.x : ""}
+                        value={props.posX}
                     />
                 </FormControl>
                 <Typography variant="h6" style={{color: "#999999", fontSize:"15px", marginTop:"3px", marginLeft:"20px"}}>세로</Typography>
@@ -62,11 +59,11 @@ export default function ImagePos(props) {
                         aria-describedby="outlined-weight-helper-text"
                         style={{height:"30px"}}
                         onChange = {ChangeY}
-                        value={props.CurrentData ? props.CurrentData.y : ""}
+                        value={props.posY}
                     />
                 </FormControl>
             </Stack>
-            <Stack direction = "row" style={{height: "50px", marginTop:"-5px", marginLeft:"15px"}}>
+            <Stack direction = "row" style={{height: "50px", marginLeft:"15px"}}>
                 <Typography variant="h6" style={{color: "#999999", fontSize:"15px", marginTop:"3px"}}>너비</Typography>
                 <FormControl variant="outlined" style={{width:"80px", marginLeft:"10px"}}>
                     <OutlinedInput
@@ -75,7 +72,7 @@ export default function ImagePos(props) {
                         aria-describedby="outlined-weight-helper-text"
                         style={{height:"30px"}}
                         onChange = {ChangeW}
-                        value={props.CurrentData ? props.CurrentData.width : ""}
+                        value={props.width}
                     />
                 </FormControl>
                 <Typography variant="h6" style={{color: "#999999", fontSize:"15px", marginTop:"3px", marginLeft:"20px"}}>높이</Typography>
@@ -85,11 +82,25 @@ export default function ImagePos(props) {
                         type="number"
                         aria-describedby="outlined-weight-helper-text"
                         style={{height:"30px"}}
-                        onChange = {ChnageH}
-                        value={props.CurrentData ? props.CurrentData.height : ""}
+                        onChange = {ChangeH}
+                        value={props.height}
+                    />
+                </FormControl>
+            </Stack>
+            <Stack direction = "row" style={{height: "50px", marginLeft:"15px"}}>
+                <Typography variant="h6" style={{color: "#999999", fontSize:"15px", marginTop:"3px"}}>회전</Typography>
+                <FormControl variant="outlined" style={{width:"80px", marginLeft:"10px"}}>
+                    <OutlinedInput
+                        id="position-r"
+                        type="number"
+                        aria-describedby="outlined-weight-helper-text"
+                        style={{height:"30px"}}
+                        onChange = {ChangeR}
+                        value={props.rotation ? props.rotation : 0}
                     />
                 </FormControl>
             </Stack>
         </>
     )
 }
+export default memo(ImagePos);

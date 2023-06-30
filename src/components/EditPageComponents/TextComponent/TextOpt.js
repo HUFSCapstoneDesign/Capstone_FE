@@ -1,78 +1,77 @@
-import {React, useState, useEffect, useRef} from "react";
-import TextFont from "./TextFont";
+import React, { useState }from "react";
+import { useData } from "../../../store";
 import TextPos from "./TextPos";
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import MenuList from '@mui/material/MenuList';
-import Divider from '@mui/material/Divider';
-import { Typography } from "@mui/material";
-import Stack from '@mui/material/Stack';
+import TextFont from "./TextFont";
+import { Menu, MenuItem, MenuList, Divider, Typography, Stack, IconButton } from '@mui/material';
 import FlipToFrontIcon from '@mui/icons-material/FlipToFront';
-import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
-
 
 export default function TextOpt(props) {
 
-    const data = props.Tdata.find((el) => el.id === props.ClickedID);
-    const deletButtonClick = () => {
-        if(data) {
-            props.setZ(data.zindex);
-            props.SetTData(props.Tdata.filter((el) => el.id !== props.ClickedID))
-            props.setZflag(props.zflag === 1 ? 0 : 1);
-            /*
-            props.SetTData(props.Tdata.map((el) => el.zindex > z ? {...el, zindex: el.zindex - 1} : el))
-            props.SetIData(props.Idata.map((el) => el.zindex > z ? {...el, zindex: el.zindex - 1} : el))
-            */
-        }      
-        props.SetClickedID("un2");
-        props.SetClickedType("Board");
-    }
-
+    const {TextData, ImageData, InitialText, InitialImage} = useData();
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
+    const data = TextData.find((el) => el.id === props.ClickedID);
+    
     const handleClick = (e) => {
         setAnchorEl(e.currentTarget);
     };
-
+    
     const handleClose = () => {
         setAnchorEl(null);
     };
-
+    
+    const deleteButton = () => {
+        if(data) {
+            const zindex = data.zindex;
+            const Image = ImageData.map((el) => el.zindex > zindex ? {...el, zindex: el.zindex - 1} : el);
+            const Tdata = TextData.filter((el) => el.id !== props.ClickedID);
+            const Text = Tdata.map((el) => el.zindex > zindex ? {...el, zindex: el.zindex - 1} : el);
+            InitialImage(Image);
+            InitialText(Text);
+            props.setClick("un1", "Board");
+        }
+    }
     const zfront = () => {
-        const currentZ = props.Tdata.find((el) => el.id === props.ClickedID).zindex;
-        props.SetIData(props.Idata.map((el) => el.zindex > currentZ ? {...el, zindex: (el.zindex - 1)} : (el.zindex === currentZ ? {...el, zindex: props.IID.current + props.TID.current} : el)));
-        props.SetTData(props.Tdata.map((el) => el.zindex > currentZ ? {...el, zindex: el.zindex - 1} : (el.zindex === currentZ ? {...el, zindex: props.IID.current + props.TID.current} : el)));
-        setAnchorEl(null);
+        if(data) {
+            const currentZ = data.zindex;
+            InitialImage(ImageData.map((el) => el.zindex > currentZ ? {...el, zindex: (el.zindex - 1)} : el));
+            InitialText(TextData.map((el) => el.zindex > currentZ ? {...el, zindex: el.zindex - 1} : (el.zindex === currentZ && el.id === props.ClickedID) ? {...el, zindex: (ImageData.length + TextData.length)} : el));
+            setAnchorEl(null);
+        }
     }
     const zbehind = () => {
-        const currentZ = props.Tdata.find((el) => el.id === props.ClickedID).zindex;
-        props.SetIData(props.Idata.map((el) => el.zindex < currentZ ? {...el, zindex: el.zindex + 1} : (el.zindex === currentZ ? {...el, zindex: 1} : el)));
-        props.SetTData(props.Tdata.map((el) => el.zindex < currentZ ? {...el, zindex: el.zindex + 1} : (el.zindex === currentZ ? {...el, zindex: 1} : el)));
-        setAnchorEl(null);
+        if(data) {
+            const currentZ = data.zindex;
+            InitialImage(ImageData.map((el) => el.zindex < currentZ ? {...el, zindex: el.zindex + 1} : el));
+            InitialText(TextData.map((el) => el.zindex < currentZ ? {...el, zindex: el.zindex + 1} : (el.zindex === currentZ ? {...el, zindex: 1} : el)));
+            setAnchorEl(null);
+        }  
     }
 
     const zforward = () => {
-        const currentZ = props.Tdata.find((el) => el.id === props.ClickedID).zindex;
-        props.SetIData(props.Idata.map((el) => el.zindex === currentZ + 1 ? {...el, zindex: currentZ} : (el.zindex === currentZ && el.id === props.ClickedID) ? {...el, zindex: currentZ + 1} : el));
-        props.SetTData(props.Tdata.map((el) => el.zindex === currentZ + 1 ? {...el, zindex: currentZ} : (el.zindex === currentZ && el.id === props.ClickedID) ? {...el, zindex: currentZ + 1} : el));
-        setAnchorEl(null);
+        if(data) {
+            const currentZ = data.zindex;
+            InitialImage(ImageData.map((el) => el.zindex === currentZ + 1 ? {...el, zindex: currentZ} : el));
+            InitialText(TextData.map((el) => el.zindex === currentZ + 1 ? {...el, zindex: currentZ} : (el.zindex === currentZ && el.id === props.ClickedID) ? {...el, zindex: currentZ + 1} : el));
+            setAnchorEl(null);
+        }    
     }
 
     const zbackward = () => {
-        const currentZ = props.Tdata.find((el) => el.id === props.ClickedID).zindex;
-        props.SetIData(props.Idata.map((el) => el.zindex === currentZ - 1 ? {...el, zindex: currentZ} : (el.zindex === currentZ && el.id === props.ClickedID) ? {...el, zindex: currentZ - 1} : el));
-        props.SetTData(props.Tdata.map((el) => el.zindex === currentZ - 1 ? {...el, zindex: currentZ} : (el.zindex === currentZ && el.id === props.ClickedID) ? {...el, zindex: currentZ - 1} : el));
-        setAnchorEl(null);
+        if(data) {
+            const currentZ = data.zindex;
+            InitialImage(ImageData.map((el) => el.zindex === currentZ - 1 ? {...el, zindex: currentZ} : el));
+            InitialText(TextData.map((el) => el.zindex === currentZ - 1 ? {...el, zindex: currentZ} : (el.zindex === currentZ && el.id === props.ClickedID) ? {...el, zindex: currentZ - 1} : el));
+            setAnchorEl(null);
+        }   
     }
 
-
-    
     return(
         <MenuList>
             <Stack direction = "row" style={{height: "80px"}}>
                 <Typography variant="h4" style={{marginTop:"18px", marginLeft:"10px"}}>텍스트</Typography>
-                <IconButton aria-label="addPhoto" onClick={handleClick} style={{marginLeft:"80px", marginTop:"17px", height:"40px"}}>
+                <IconButton aria-label="addText" onClick={handleClick} style={{marginLeft:"80px", marginTop:"17px", height:"40px"}}>
                     <FlipToFrontIcon></FlipToFrontIcon>
                 </IconButton>
                 <Menu
@@ -85,16 +84,17 @@ export default function TextOpt(props) {
                     <MenuItem onClick={zforward}>앞으로 보내기</MenuItem>
                     <MenuItem onClick={zbackward}>뒤로 보내기</MenuItem>
                 </Menu>
-                <IconButton onClick={deletButtonClick} style={{marginLeft:"5px", marginTop:"17px", height:"40px"}}>
+                <IconButton style={{marginLeft:"5px", marginTop:"17px", height:"40px"}} onClick={deleteButton}>
                     <DeleteIcon></DeleteIcon>
                 </IconButton>
             </Stack>
             <Divider/>
             <br/>
-            <TextPos Tdata = {props.Tdata} SetTData = {props.SetTData} ClickedID={props.ClickedID} CurrentData = {data} zoomRatio = {props.zoomRatio} temHeight = {props.temHeight} temWidth = {props.temWidth}></TextPos>
+            {data && <TextPos posX = {data.x} posY = {data.y} updateText = {props.updateText} id = {data.id} width = {data.width} height = {data.height} rotation = {data.rotation ? data.rotation : 0}></TextPos>}
             <Divider/>
             <br/>
-            <TextFont Tdata = {props.Tdata} SetTData = {props.SetTData} ClickedID={props.ClickedID} CurrentData = {data} backColorBol = {props.backColorBol} SetBackColorBol = {props.SetBackColorBol} zoomRatio = {props.zoomRatio} changeFlag = {props.changeFlag} setChangeFlag = {props.setChangeFlag}></TextFont>      
+            {data && <TextFont align = {data.align} backcolor = {data.backcolor} backopa = {data.backopa} bold = {data.bold} font = {data.font} italic = {data.italic} size = {data.size} textcolor = {data.textcolor} textopa = {data.textopa} underlined = {data.underlined} updateText = {props.updateText} id = {data.id} TextSizeFlag = {props.TextSizeFlag} setTextSize = {props.setTextSize}></TextFont>}
         </MenuList>
+        
     )
 }

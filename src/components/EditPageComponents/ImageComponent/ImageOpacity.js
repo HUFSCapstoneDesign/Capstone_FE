@@ -1,10 +1,12 @@
-import React from "react";
-import Slider from '@mui/material/Slider';
-import Box from '@mui/material/Box';
+import React, { memo } from "react";
+import { Box, Typography, Slider, TextField, Tooltip } from "@mui/material";
 import { RowBox } from "../../../styles/emotion";
-import {TextField, Typography, Tooltip} from "@mui/material";
 
-export default function ImageOpacity (props) {
+function ImageOpacity(props) {
+
+    const ChangeOpacity = (e) => {
+        props.updateImage(props.id, {opacity: 1 - Number(e.target.value) * 0.01});
+    }
 
     function ValueLabelComponent(props) {
         const { children, value } = props;
@@ -16,18 +18,14 @@ export default function ImageOpacity (props) {
         );
     }
 
-    const ChangeOpacity = (e) => {
-        props.SetIData(props.Idata.map((el) => el.id === props.ClickedID ? {...el, opacity: 1 - Number(e.target.value) * 0.01} : el))
-    }
-
     return(
         <>
-            <Box sx = {{width: 240, marginLeft: 1.5}}>                
+         <Box sx = {{width: 240, marginLeft: 1.5}}>                
                 <Typography variant="h6" style={{fontSize:"18px", marginLeft:"5px"}}>투명도</Typography>
                 <RowBox>
                     <Slider
                         id = "opacity-slider"
-                        value={props.CurrentData ? 100 - (props.CurrentData.opacity * 100 ): ""}
+                        value={100 - parseInt(props.opacity * 100 )}
                         onChange={ChangeOpacity}
                         min={0} max={100} step={1}
                         style={{marginLeft: "20px", width: "170px"}}
@@ -36,7 +34,7 @@ export default function ImageOpacity (props) {
                         sx = {{color: "#70E000"}}
                     />
                     <TextField
-                        value={props.CurrentData ? 100 - parseInt(props.CurrentData.opacity * 100) : ""}
+                        value={100 - parseInt(props.opacity * 100)}
                         onInput={ChangeOpacity}
                         id="opacity-number"
                         min = {0} max = {100} step={1}
@@ -50,6 +48,7 @@ export default function ImageOpacity (props) {
                     />
                 </RowBox>
             </Box>
-        </>    
+        </>
     )
 }
+export default memo(ImageOpacity);

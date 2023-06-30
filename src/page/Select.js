@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -6,15 +6,16 @@ import Info from "../components/SelectComponents/Info";
 import "../styles/Select.css";
 import axios from "axios";
 
+
 //더미mainimage
 import mainimage from "../images/main.jpg";
+import { useData } from "../store";
 
 
 
 //검색창
 function Search(props) {
   const [check, setcheck] = useState();
-
   const [userSelect, setUserSelect] = useState("");
   const getCate = (e) => {
     setUserSelect(e.target.value);
@@ -66,7 +67,7 @@ function Search(props) {
         ></input>
       </div>
       <Slider {...settings}>{lis}</Slider>
-      <TempleteList data={searched} categoryData = {props.categoryData}></TempleteList>
+      <TempleteList data={searched}></TempleteList>
     </div>
   );
 }
@@ -74,7 +75,7 @@ function Search(props) {
 //템플릿 나열
 function TempleteList(props) {
   const [InfoOpen, setInfoOpen] = useState(false);
-
+  const divRef = useRef(null);
   const lis = [];
   for (let i = 0; i < props.data.length; i++) {
     let temp = props.data[i];
@@ -86,13 +87,18 @@ function TempleteList(props) {
           getId(temp.id);
           setInfoOpen(!InfoOpen);
         }}
+        ref={divRef}
       >
         <img
           className="mainImage"
           src={temp.introduce.main_image_src}
           alt=""
+          loading="lazy"
+          decoding="async"
+          width="200px"
+          height="200px"
         ></img>
-        <div className="templeteInfo">
+        <div className="templeteInfo" >
           <span className="templeteCate">{temp.category.name}</span>
           <span className="templeteTitle">{temp.name}</span>
         </div>
@@ -110,13 +116,14 @@ function TempleteList(props) {
     <section>
       <ol className="templete_area">{lis}</ol>
       {InfoOpen && (
-        <Info id={selectid} closeInfo={() => setInfoOpen(!InfoOpen)} categoryData = {props.categoryData}></Info>
+        <Info id={selectid} closeInfo={() => setInfoOpen(!InfoOpen)}></Info>
       )}
     </section>
   );
 }
 
 function Select() {
+  const {InitialCategoryData} = useData();
   const temp = [
     [{ id: 0, name: "템플릿", introduce: { main_image_src: mainimage,}, category: { name: "카테고리" } }],
     [{name: "카테고리"},]];
@@ -126,6 +133,7 @@ function Select() {
     async function data() {
       const d = await axios.get("http://127.0.0.1:8000/templates");
       setData(d.data);
+      InitialCategoryData(d.data[1]);
     }
     data();
   }, []);
@@ -136,14 +144,14 @@ function Select() {
       id: i,
       category: { name: "카테고리" + i },
       name: "템플릿Title" + i,
-      introduce: { main_image_src: mainimage },
+      introduce: { main_image_src: ""},
     });
   }
 
 
   return (
     <div className="templeteContainer">
-      <Search data={data} categoryData = {data[1]}></Search>
+      <Search data={data}></Search>
     </div>
   );
 }

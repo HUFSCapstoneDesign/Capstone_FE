@@ -1,11 +1,12 @@
 import { React, useState, useRef, useEffect } from "react";
 import "../styles/Preview.css";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { MainPage } from "../styles/emotion";
 import AWS from 'aws-sdk';
 import uuid from 'react-uuid';
 import axios from 'axios'
 import imageCompression from "browser-image-compression";
+import { useData } from "../store";
 
 import {
   createTheme,
@@ -22,6 +23,7 @@ import ImageCropping from "../components/PreviewComponents/ImageCropping";
 
 function AddInfo(props) {
   const textarea = useRef();
+  const {categoryData} = useData();
 
   const titleChange = (e) => {
     textarea.current.style.height = "auto"; //height 초기화
@@ -58,7 +60,7 @@ function AddInfo(props) {
       ></textarea>
       <span className="name">| 카테고리</span>
       <select className="category" onChange={categoryChange}>
-        {props.categoryData.map((item, idx) => (
+        {categoryData.map((item, idx) => (
           <option value={item.name ? item.name : ""} key={idx}>
             {item.name}
           </option>
@@ -67,12 +69,10 @@ function AddInfo(props) {
       <span className="name">| 태그</span>
       <AddTag setTag={props.setTag}></AddTag>
       <Button
-        variant="contained"
-        style={{ position: "absolute", left: "110px", top: "600px" }}
-        onClick={ImageSave}
-      >
-        이미지
-      </Button>
+          variant="contained"
+          onClick={ImageSave}
+          style={{position:"absolute", top: "600px", left:"140px"}}
+      >이미지</Button>
     </div>
   );
 }
@@ -128,7 +128,9 @@ function AddTag(props) {
   );
 }
 
-function Result({ Idata, Tdata }) {
+function Result() {
+  const {TextData, ImageData} = useData();
+  console.log(TextData); 
   const rgba = (rgb, opa) => {
     return (
       "rgba(" +
@@ -144,7 +146,7 @@ function Result({ Idata, Tdata }) {
   };
   return (
     <>
-      {Tdata.map(
+      {TextData.map(
         (el) =>
           el.content && (
             <pre
@@ -169,14 +171,15 @@ function Result({ Idata, Tdata }) {
                 paddingLeft: el.align === "left" ? "2px" : el.align === "right" ? "5px" : "5px",
                 paddingRight: el.align === "left" ? "5px" : el.align === "right" ? "2px" : "5px",
                 paddingTop: "3px",
-                paddingBottom: "7px"
+                paddingBottom: "7px",
+                transform: `rotate(${parseInt(el.rotation)}deg)`
               }}
             >
               {el.content}
             </pre>
           )
       )}
-      {Idata.map((el) => (
+      {ImageData.map((el) => (
         <img
           key={`${"2"+el.id}`}
           crossOrigin="anonymous"
@@ -194,6 +197,7 @@ function Result({ Idata, Tdata }) {
             borderRadius: el.radius,
             zIndex: el.zindex,
             opacity: el.opacity,
+            transform: `rotate(${el.rotation}deg)`,
             filter: `blur(${el.blur}px) brightness(${el.brightness}%) contrast(${el.contrast}%) grayscale(${el.grayscale}%) hue-rotate(${el.hue}deg) invert(${el.invert}%) saturate(${el.saturate}%) sepia(${el.sepia}%)`,
           }}
         ></img>
@@ -211,9 +215,9 @@ function Preview(props) {
   const [imageLink, setImageLink] = useState(null);
   const [mainImage, setMainImage] = useState(null);
   const [fullImage, setFullImage] = useState(null);
-  const location = useLocation();
+  const {updateID} = useData();
+  const {TextData, ImageData, temWidth, temHeight, categoryData} = useData();
   
-
   useEffect(() => {
     setlWidth(document.getElementById("display").offsetWidth);
     const setWidth = () => {
@@ -260,21 +264,18 @@ function Preview(props) {
   });
 
   const uploadData = async() => {
-    const Tdata = location.state.Tdata;
-    const Idata =  location.state.Idata;
-    const updatedID = location.state.updatedID;
     const option = {
       maxSizeMB: 0.2,
       maxWidthOrHeight: 1000,
       useWebWorker: true,
     }
 
-    let NTdata = Tdata.map((el) => ({x: el.x, y: el.y, content: el.content, size: el.size, font: el.font, bold: el.bold, italic: el.italic, underlined: el.underlined, align: el.align, textcolor: el.textcolor, textopa: el.textopa, backcolor: el.backcolor, backopa: el.backopa, zindex: el.zindex}));
-    let NIdata = Idata.map((el) => ({id: el.id, x: el.x, y: el.y, src: el.src, width: el.width, height: el.height, zindex: el.zindex, borderstyle: el.borderstyle, bordersize: el.bordersize, bordercolor: el.bordercolor, opacity: el.opacity, radius: el.radius, blur: el.blur, brightness : el.brightness, contrast: el.contrast, grayscale: el.grayscale, hue: el.hue, invert:el.invert, saturate: el.saturate, sepia: el.sepia}))
+    let NTdata = TextData.map((el) => ({x: el.x, y: el.y, content: el.content, size: el.size, font: el.font, bold: el.bold, italic: el.italic, underlined: el.underlined, align: el.align, textcolor: el.textcolor, textopa: el.textopa, backcolor: el.backcolor, backopa: el.backopa, zindex: el.zindex}));
+    let NIdata = ImageData.map((el) => ({id: el.id, x: el.x, y: el.y, src: el.src, width: el.width, height: el.height, zindex: el.zindex, borderstyle: el.borderstyle, bordersize: el.bordersize, bordercolor: el.bordercolor, opacity: el.opacity, radius: el.radius, blur: el.blur, brightness : el.brightness, contrast: el.contrast, grayscale: el.grayscale, hue: el.hue, invert:el.invert, saturate: el.saturate, sepia: el.sepia}))
     let TIdata = [];
     NIdata.forEach(function(el) {
       let flag = true;
-      for(var key in updatedID) {
+      for(var key in updateID) {
         if(el.id === key) {
           flag = false;
           break;
@@ -284,7 +285,6 @@ function Preview(props) {
         TIdata.push(el);
       }
     })
-    console.log(NIdata);
     AWS.config.update({
       region: "",
       accessKeyId: "",
@@ -312,13 +312,11 @@ function Preview(props) {
       }
     }
 
-    for(var key in updatedID) {
-      upload(updatedID[key], key);
-      console.log(key);
+    for(var key in updateID) {
+      upload(updateID[key], key);
     }
 
     const intSrc = [mainImage, fullImage];
-    console.log(mainImage, fullImage);
     
     var intURL = [null, null];
     for (var i = 0; i < 2; i++) {
@@ -340,7 +338,6 @@ function Preview(props) {
       }      
     }
     const TagData = tag ? tag.map((el) => ({"tagName": el})) : {};
-    const categoryData = category ? category : location.state.categoryData[0].name;
     TIdata = TIdata.map((el) => ({x: el.x, y: el.y, src: el.src, width: el.width, height: el.height, zindex: el.zindex, borderstyle: el.borderstyle, bordersize: el.bordersize, bordercolor: el.bordercolor, opacity: el.opacity, radius: el.radius, blur: el.blur, brightness : el.brightness, contrast: el.contrast, grayscale: el.grayscale, hue: el.hue, invert:el.invert, saturate: el.saturate, sepia: el.sepia}))    
     console.log({"images": TIdata, "texts": NTdata, "tags": TagData, "category" : categoryData, "fullImageSrc" : intURL[1], "mainImageSrc": intURL[0], "templateName": title});
      /*
@@ -361,15 +358,6 @@ function Preview(props) {
           <Toolbar variant="dense" style={{ marginLeft: "-10px" }}>
             <Link
               to="/edit"
-              state={{
-                Tdata: location.state.Tdata,
-                Idata: location.state.Idata,
-                temHeight: location.state.temHeight,
-                temWidth: location.state.temWidth,
-                pageFlag: false,
-                updatedID: location.state.updatedID,
-                categoryData: location.state.categoryData
-              }}
             >
               <Button sx={{ color: "white" }}>편집하기</Button>
             </Link>
@@ -381,25 +369,21 @@ function Preview(props) {
         </AppBar>
       </ThemeProvider>
       <div className="preview">
-        <AddInfo
+      <AddInfo
           setTitle={setTitle}
           setCategory={setCategory}
           setTag={setTag}
           imageLink = {imageLink}
-          categoryData = {location.state.categoryData}
         ></AddInfo>
         <DisplayMain ref={widthRef} id="display">
           <Template
             id="view"
-            temWidth={location.state.temWidth}
-            temHeight={location.state.temHeight}
+            temWidth={temWidth}
+            temHeight={temHeight}
             lWidth={lWidth}
             zoomRatio={1}
           >
-            <Result
-              Tdata={location.state.Tdata}
-              Idata={location.state.Idata}
-            ></Result>
+            <Result></Result>
           </Template>
         </DisplayMain>
       </div>

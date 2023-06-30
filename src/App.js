@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
   const Select = lazy(() => import('./page/Select'))
-  const EditPage = lazy(() => import('./page/EditPage'))
+  const EditPage = lazy(() => import ('./page/EditPage'))
   const Preview = lazy(() => import('./page/Preview'))
   return (
     <BrowserRouter>

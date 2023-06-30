@@ -1,23 +1,12 @@
-import React, { useState } from "react";
-import { RowBox } from "../../../styles/emotion";
-import { ListItemButton, Collapse, Typography, Stack, MenuItem} from "@mui/material";
+import React, { memo, useState } from "react";
+import { Typography, Stack, FormControl, InputLabel, Select, MenuItem, TextField, ListItemButton, Collapse, Box, Slider, Tooltip } from "@mui/material";
+import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { ChromePicker } from 'react-color';
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
-import Slider from '@mui/material/Slider';
-import Box from '@mui/material/Box';
-import Select from '@mui/material/Select';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import TextField from '@mui/material/TextField';
-import Tooltip from '@mui/material/Tooltip';
+import { RowBox } from "../../../styles/emotion";
 
-
-export default function ImageBoarder(props) {
-
-    const [list, setList] = useState();
-    const canEdit = (props.CurrentData.borderstyle !== "none");
-
+function ImageBoarder(props) {
+    const canEdit = (props.borderstyle !== "none");
+    const [list, setList] = useState(false);
     function ValueLabelComponent(props) {
         const { children, value } = props;
       
@@ -26,27 +15,29 @@ export default function ImageBoarder(props) {
             {children}
           </Tooltip>
         );
-      }
-      
+    } 
+
+    const ChangeBorderStyle = (e) => {
+        props.updateImage(props.id, {borderstyle: e.target.value});
+        setList(false);
+    }
+
+    const ChangeBorderSize = (e) => {
+        const value = Number(e.target.value)
+        props.updateImage(props.id, {bordersize: (value > 0 ? value : 0)});
+        setList(false);
+    }
 
     const handleList = () => {
         setList(!list);
     }
 
-    const BorderStyle = (e) => {
-        props.SetIData(props.Idata.map((el) => el.id === props.ClickedID ? {...el, borderstyle: e.target.value} : el));
-    }
-    
-    const BorderSize = (e) => {  
-        e.target.value > 0 ? props.SetIData(props.Idata.map((el) => el.id === props.ClickedID ? {...el, bordersize: e.target.value} : el)) : props.SetIData(props.Idata.map((el) => el.id === props.ClickedID ? {...el, bordersize: 0} : el));
+    const ChangeBorderColor = (color) => {
+        props.updateImage(props.id, {bordercolor: color.hex});
     }
 
-    const BorderColor = (color) => {
-        props.SetIData(props.Idata.map((el) => el.id === props.ClickedID ? {...el, bordercolor: color.hex} : el));
-    }
-
-    const BorderRadius = (e) => {
-        props.SetIData(props.Idata.map((el) => el.id === props.ClickedID ? {...el, radius: parseInt(e.target.value)} : el));
+    const ChangeRadius = (e) => {
+        props.updateImage(props.id, {radius: parseInt(e.target.value)});
     }
 
     return(
@@ -57,9 +48,9 @@ export default function ImageBoarder(props) {
                     <InputLabel id="border-style">Style</InputLabel>   
                     <Select 
                         label="Style"
-                        onChange={BorderStyle}
+                        onChange={ChangeBorderStyle}
                         style={{width: "170px", height: "40px"}}
-                        value={props.CurrentData ? props.CurrentData.borderstyle : ""}                     
+                        value={props.borderstyle}                     
                     >   
                         <MenuItem value = {"none"}>None</MenuItem>
                         <MenuItem value = {"dotted"}>Dotted</MenuItem>
@@ -72,24 +63,24 @@ export default function ImageBoarder(props) {
                         <MenuItem value = {"outset"}>Outset</MenuItem>
                     </Select>
                 </FormControl>
-                {canEdit ? <TextField type="number" label="Width" variant="outlined" size="small" sx={{width:"40px"}} style={{width:"80px", marginLeft:"15px"}} onChange={BorderSize} value={props.CurrentData ? props.CurrentData.bordersize : ""}/>
-                :<TextField disabled type="number" label="Width" variant="outlined" size="small" sx={{width:"40px"}} style={{width:"80px", marginLeft:"15px"}} onChange={BorderSize} value={props.CurrentData ? props.CurrentData.bordersize : ""}/>}
+                {canEdit ? <TextField type="number" label="Width" variant="outlined" size="small" sx={{width:"40px"}} style={{width:"80px", marginLeft:"15px"}} onChange={ChangeBorderSize} value={props.bordersize}/>
+                :<TextField disabled type="number" label="Width" variant="outlined" size="small" sx={{width:"40px"}} style={{width:"80px", marginLeft:"15px"}} onChange={ChangeBorderSize} value={props.bordersize}/>}
             </Stack>
-            {(canEdit && props.CurrentData.bordersize !== 0) && 
+            {(canEdit && props.bordersize !== 0) && 
             <ListItemButton onClick={handleList} style={{height: "35px", width:"150px", marginTop:"5px", marginLeft:"15px"}}>
                 <Typography variant="h6" style={{fontSize:"17px", marginLeft:"-15px"}}> 테두리 색상</Typography>
-                <div style={{width:"15px", height:"15px", marginLeft:"8px", backgroundColor: props.CurrentData && props.CurrentData.bordercolor}}></div>
+                <div style={{width:"15px", height:"15px", marginLeft:"8px", backgroundColor: props.bordercolor}}></div>
                 {list ? <ExpandLess style={{marginRight: "-30px"}}></ExpandLess> : <ExpandMore style={{marginRight: "-30px"}}></ExpandMore>}
             </ListItemButton>}
             <Collapse in={list} timeout="auto" unmountOnExit style={{ width: "220px", marginLeft:"15px"}}>
-                    <ChromePicker color = {props.CurrentData && props.CurrentData.bordercolor} onChange={BorderColor}></ChromePicker>                  
+                <ChromePicker color = {props.bordercolor} onChange={ChangeBorderColor}></ChromePicker>                  
             </Collapse>
             <Box sx = {{width: 240, marginLeft: "15px", marginTop:"10px"}}>
             <Typography variant="h6" style={{fontSize:"18px", marginLeft:"7px", marginTop:"3px"}}>Radius</Typography>
                 <RowBox>
                     <Slider
-                        value={props.CurrentData ? props.CurrentData.radius : 0}
-                        onChange={BorderRadius} 
+                        value={props.radius}
+                        onChange={ChangeRadius} 
                         style={{marginLeft: "20px", width: "170px"}}
                         valueLabelDisplay="auto"
                         slots={{valueLabel: ValueLabelComponent}}
@@ -106,11 +97,12 @@ export default function ImageBoarder(props) {
                         
                         size = "small"
                         sx = {{width: "80px", left:"10px", top:"-5px"}}
-                        value={props.CurrentData ? props.CurrentData.radius : 0}
-                        onInput = {BorderRadius}
+                        value={props.radius}
+                        onInput = {ChangeRadius}
         />
                 </RowBox>
-            </Box>            
+            </Box>
         </>
     )
 }
+export default memo(ImageBoarder);

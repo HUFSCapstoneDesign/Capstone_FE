@@ -1,20 +1,21 @@
-import React from "react";
-import { Typography, Stack } from "@mui/material";
-import FormControl from '@mui/material/FormControl';
-import OutlinedInput from '@mui/material/OutlinedInput';
+import React, { memo } from "react";
+import { Typography, Stack, FormControl, OutlinedInput } from "@mui/material";
+import { useData } from "../../../store";
 
-export default function TextPos(props) {
-
+function TextPos(props) {
+    const {temWidth, temHeight} = useData();
     const ChangeX = (e) => {
-        const width = props.CurrentData.width;
-        const value = e.target.value < 0 ? 0 : (props.temWidth < width + Number(e.target.value)) ? parseInt(props.temWidth - width) : Number(e.target.value);
-        props.SetTData(props.Tdata.map((el) => el.id === props.ClickedID ? {...el, x: value} : el));
+        const value = e.target.value < 0 ? 0 : (temWidth < props.width + Number(e.target.value)) ? parseInt(temWidth - props.width) : Number(e.target.value);
+        props.updateText(props.id, {x: parseInt(value)});
+    }
+    const ChangeY = (e) => {
+        const value = e.target.value < 0 ? 0 : (temHeight < props.height + Number(e.target.value)) ? temHeight - props.height : Number(e.target.value);
+        props.updateText(props.id, {y: parseInt(value)});
     }
 
-    const ChangeY = (e) => {
-        const height = props.CurrentData.height;
-        const value = e.target.value < 0 ? 0 : props.temHeight < height + Number(e.target.value) ? props.temHeight - height : Number(e.target.value);
-        props.SetTData(props.Tdata.map((el) => el.id === props.ClickedID ? {...el, y: value} : el));
+    const ChangeR = (e) => {
+        const value = e.target.value < 0 ? 0 : e.target.value >= 360 ? e.target.value % 360 : e.target.value;
+        props.updateText(props.id, {rotation: parseInt(value)});
     }
 
     return(
@@ -29,7 +30,7 @@ export default function TextPos(props) {
                         aria-describedby="outlined-weight-helper-text"
                         style={{height:"30px", textAlign:"right"}}
                         onChange = {ChangeX}
-                        value={props.CurrentData ? props.CurrentData.x : ""}
+                        value={props.posX}
                     />
                 </FormControl>
 
@@ -41,10 +42,25 @@ export default function TextPos(props) {
                         aria-describedby="outlined-weight-helper-text"
                         style={{height:"30px"}}
                         onChange = {ChangeY}
-                        value={props.CurrentData ? props.CurrentData.y : ""}
+                        value={props.posY}
+                    />
+                </FormControl>
+            </Stack>
+            <Stack direction = "row" style={{height: "50px", marginLeft:"15px"}}>
+                <Typography variant="h6" style={{color: "#999999", fontSize:"15px", marginTop:"3px"}}>회전</Typography>
+                <FormControl variant="outlined" style={{width:"80px", marginLeft:"10px"}}>
+                    <OutlinedInput
+                        id="position-r"
+                        type="number"
+                        aria-describedby="outlined-weight-helper-text"
+                        style={{height:"30px"}}
+                        onChange = {ChangeR}
+                        value={props.rotation ? props.rotation : 0}
                     />
                 </FormControl>
             </Stack>
         </>
     )
 }
+
+export default memo(TextPos);
